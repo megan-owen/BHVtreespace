@@ -426,10 +426,8 @@ public class Geodesic {
 		 PhyloTree tA = gA.getEdgeVector(0,leaf2NumMap, isRooted);
 		 PhyloTree tB = gA.getEdgeVector(1,leaf2NumMap, isRooted) ;
 		//Combine both Trees in g1 with Trees in gA
-		 double[] out = {t1.angleFormedWith(tA),
-				 		 t1.angleFormedWith(tB),
-				 		 t2.angleFormedWith(tA),
-				 		 t2.angleFormedWith(tB)};
+		 double[] out = {t1.angleFormedWith(tA), t2.angleFormedWith(tB),
+				 		 t1.angleFormedWith(tB), t2.angleFormedWith(tA)};
 		return out;
 	}
 	
