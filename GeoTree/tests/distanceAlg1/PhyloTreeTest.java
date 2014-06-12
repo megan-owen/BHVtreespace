@@ -400,6 +400,22 @@ public class PhyloTreeTest {
 		assertTrue("Test 7 failed; ", !t1.hasSameTopology(t2));
 
 	}
+	@Test 
+	public void testDotProduct() {
+		assertEquals("With same edges Failed",5.0,s1.dotProduct(s1),0);
+		assertEquals("With different edges Failed",0.75,s2.dotProduct(s3),0);
+		assertEquals("No common edges Failed",0.0,s1.dotProduct(s3),0);
+		assertEquals("Unequal NumMap Failed",0.0,s1.dotProduct(s1_different_leaves),0);
+		assertEquals("Vector Product Failed",-1.0,k1.dotProduct(k2),0);
+	}
+	
+	@Test 
+	public void testAngleFormed() {
+		assertEquals("With same Failed",Math.acos(1),s1.angleFormedWith(s1),0.000001);
+		assertEquals("With different Failed",Math.acos(.75/Math.sqrt(57.8125)),s2.angleFormedWith(s3),0);
+		assertEquals("No common edges Failed",Math.acos(0),s1.angleFormedWith(s3),0);
+		assertEquals("Unequal NumMap Failed",Math.acos(0),s1.angleFormedWith(s1_different_leaves),0);
+	}
 	
 	@Test
 	public void testIsBinary() {

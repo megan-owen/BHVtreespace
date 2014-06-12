@@ -197,5 +197,35 @@ public class GeodesicTest {
     	// Test 1: basic test
     	assertEquals("Test 1 failed; ", PolyMain.getGeodesic(t1,t2, null), PolyMain.getGeodesic(t1,t2,null));
     }
+    
+    @Test 
+    public void testEndpointAngle() {
+    	//Same Geodesic
+    	Geodesic geo1 = PolyMain.getGeodesic(t4_1, t4_2, null); 
+    	Geodesic geo2 = PolyMain.getGeodesic(t4_2, t4_1, null); 
+    		
+    	for (double e: Geodesic.getEndpointAngles(geo1, geo2, t4_1.getLeaf2NumMap(), t4_1.isRooted())) {
+    		assertTrue(	(Math.acos(0)-.0001<e && e<Math.acos(0)+.0001)
+    				 || (Math.acos(1)-.0001<e && e<Math.acos(1)+.0001)
+    				  );
+    	}
+    }
+    
+    @Test
+    public void testEdgeVector() {
+    	Geodesic geo = PolyMain.getGeodesic(t4_1, t4_2, null); 
+    	
+    	Vector<PhyloTreeEdge> edges = new Vector<PhyloTreeEdge>();
+    	edges.add(new PhyloTreeEdge(new Bipartition("1110"),new EdgeAttribute(new double[] {1}),-1));
+    	edges.add(new PhyloTreeEdge(new Bipartition("1010"),new EdgeAttribute(new double[] {1}),-1));
+    	PhyloTree answer = new PhyloTree(edges, t4_1.getLeaf2NumMap(), t4_1.isRooted());
+    	assertEquals("Test 1 (Get first boundary)",answer,geo.getEdgeVector(0, t4_1.getLeaf2NumMap(), t4_1.isRooted()));
+    	
+    	edges = new Vector<PhyloTreeEdge>();
+    	edges.add(new PhyloTreeEdge(new Bipartition("0011"),new EdgeAttribute(new double[] {1}),-1));
+    	edges.add(new PhyloTreeEdge(new Bipartition("1100"),new EdgeAttribute(new double[] {1}),-1));
+    	answer = new PhyloTree(edges, t4_1.getLeaf2NumMap(), t4_1.isRooted());
+    	assertEquals("Test 2 (Get last boundary)",answer,geo.getEdgeVector(1, t4_1.getLeaf2NumMap(), t4_1.isRooted()));
+    }
 
 }

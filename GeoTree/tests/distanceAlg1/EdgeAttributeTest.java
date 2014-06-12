@@ -121,6 +121,25 @@ public class EdgeAttributeTest {
 	}
 	
 	@Test
+	public void testProduct() {
+		
+		assertEquals("Test 1 (same attribute - double array, length 1) failed",new EdgeAttribute(new double[] {1.0}),EdgeAttribute.product(a1, a1_same));
+		assertEquals("Test 2 (unequal attribute - double array, length 1) failed",new EdgeAttribute(new double[] {4.0}),EdgeAttribute.product(a1, a2));
+	
+		assertEquals("Test 3 (same attribute - double array, length >1) failed", new EdgeAttribute(new double[] {1.0,4.0,9.0}), EdgeAttribute.product(b1,b1_same));
+		assertEquals("Test 4 (unequal attribute - double array, length >1) failed", new EdgeAttribute(new double[] {2.0,4.0,6.0}), EdgeAttribute.product(b1,b2));	
+	}
+	
+	@Test
+	public void testSumOfVector() {
+		assertEquals("Test 1 (a1 singular vector) failed", 1, a1.sumOfAttributeVector(),0);
+		assertEquals("Test 2 (a2 singular vector) failed", 4, a2.sumOfAttributeVector(),0);
+		assertEquals("Test 3 (b1 vectored) failed", 6, b1.sumOfAttributeVector(),0);
+		assertEquals("Test 4 (b2 vectored) failed", 6, b2.sumOfAttributeVector(),0);	
+	}
+	
+	
+	@Test
 	public void testWeightedPairAverage() {
 		
 		assertEquals("Test 1 (same attribute - double array, length 1) failed; ", a1, EdgeAttribute.weightedPairAverage(a1,a1,0.4));

@@ -412,6 +412,45 @@ public class Geodesic {
 		}
 		return boundaryTrees;
 	}
+	
+	/** Returns the 4 angles formed by the geodesic end-points
+	 * 
+	 * @return
+	 */
+	public static double[] getEndpointAngles(Geodesic g1, Geodesic gA, Vector<String> leaf2NumMap, Boolean isRooted) {
+		//Vector Trees for g1 near index 0 and 1
+		 PhyloTree t1 = g1.getEdgeVector(0,leaf2NumMap, isRooted);
+		 PhyloTree t2 = g1.getEdgeVector(1,leaf2NumMap, isRooted);
+		 
+		//Vector Trees for gA near index 0 and 1
+		 PhyloTree tA = gA.getEdgeVector(0,leaf2NumMap, isRooted);
+		 PhyloTree tB = gA.getEdgeVector(1,leaf2NumMap, isRooted) ;
+		//Combine both Trees in g1 with Trees in gA
+		 double[] out = {t1.angleFormedWith(tA),
+				 		 t1.angleFormedWith(tB),
+				 		 t2.angleFormedWith(tA),
+				 		 t2.angleFormedWith(tB)};
+		return out;
+	}
+	
+	/** Returns EdgeVector of the tree on the side specified
+	 * @param Side = 0 or 1
+	 * 
+	 * @return
+	 */
+	public PhyloTree getEdgeVector(int side, Vector<String> leaf2NumMap, Boolean isRooted) {
+		//From Both Sides find nearest Boundary Tree
+		PhyloTree t1 = this.getTreeAt(0, leaf2NumMap, isRooted);
+		PhyloTree t2 = this.getTreeAt(1, leaf2NumMap, isRooted);
+		Vector<PhyloTree> trees = Geodesic.getBoundaryTrees(t1,t2);
+		
+		//Essentially make tA and tB move to the origin to get vector of t1 and t2
+		if (side>.5) {
+			return new PhyloTree(PhyloTree.getCommonEdges(t1, trees.firstElement()),leaf2NumMap, isRooted);
+		} else {
+			return new PhyloTree(PhyloTree.getCommonEdges(t2, trees.lastElement()),leaf2NumMap, isRooted);
+		}
+	}
 
 	/** Returns an ArrayList of the trees that are in the middle of each geodesic 
 	 * segment in each othant.  Does not include the starting or ending tree/orthant.

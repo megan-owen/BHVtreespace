@@ -214,6 +214,45 @@ public class EdgeAttribute {
 			
 	}
 	
+	/** Multiplies the two attributes.
+	 * 
+	 * @param a1
+	 * @param a2
+	 */
+	public static EdgeAttribute product(EdgeAttribute a1, EdgeAttribute a2) {
+		if (a1.vect == null || a2.vect == null) {
+			return null;
+		}
+		
+		if (a1.vect.length != a2.vect.length) {
+			System.err.println("Error:  vectors different lengths when adding EdgeAttributes " + a1 + " and " + a2);
+			System.exit(1);
+		}
+		
+		//Get Length
+		int Length = a1.vect.length;
+		
+		//Make "Edge" with vector needed
+		EdgeAttribute prod = new EdgeAttribute();
+		prod.vect = new double[Length];
+		
+		//Put numbers in vector using multiplication
+		for(int i=0; i<Length; i++) {
+			prod.vect[i] = a1.vect[i]*a2.vect[i];
+		}
+		return prod;
+	}
+	/** Finds sum of all vectors in Attribute 
+	 * 
+	 * @return
+	 */
+	public double sumOfAttributeVector() {
+		double sum=0;
+		for(int i=0; i<vect.length; sum+=vect[i++]) {}
+		return sum;
+	}
+	
+	
 	/** Find the specified point (given by position) on the line between start and target.
 	 *  position is between 0 and 1, where position = 0 returns the start and
 	 *  position = 1 returns the target.
