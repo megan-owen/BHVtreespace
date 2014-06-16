@@ -565,7 +565,7 @@ public class Analysis {
 	}
 	
 	/** Help message (ie. which arguments can be used, etc.)
-	 * 
+	 *  XXX:  rename sample_point to getTreeAt
 	 */
 	public static void displayHelp() {
 		System.out.println("Command line syntax:");

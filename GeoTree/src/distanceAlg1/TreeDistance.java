@@ -1644,7 +1644,6 @@ public class TreeDistance {
             	// check for blank lines and that the first character is not # (signals comment)
             	if (l != "") {
             		if (l.charAt(0) != '#') {
-            			System.out.println("in here for line " + l);
             			stringTrees.add(l);
             			numTrees++;
             		}
