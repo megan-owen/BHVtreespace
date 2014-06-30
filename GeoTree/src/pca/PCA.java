@@ -31,6 +31,7 @@ public class PCA {
 		System.out.println("\n");
 		System.out.println("Algorithms are:");
 		System.out.println("\t random \t randomly selects two trees, computes the geodesic between them and the projection score onto that geodesic");
+		System.out.println("\t all \t for all trees in treefile, computes the geodesic between them and the projection score onto that geodesic.  Outputs the indices of the lowest scoring trees.");
 	}
 	
 
@@ -107,13 +108,19 @@ public class PCA {
 			otherTrees = PolyMain.readInTreesFromFile(otherTreeFile,rooted);
 		}
 	
-		// Algorithms that don't write to outFile.
+		// Algorithms that don't write to outFile (or write to it within the method).
 		if (algorithm.equals("random")) {
     		// XXX: Should check that numIter, etc make sense
 			// outfile is used a prefix for a group of output files.
-    		projToRandomGeodesics(trees,orthants,numIter,epsilon,outfile);
+			if (otherTrees != null) {
+				projToRandomGeodesics(trees,otherTrees,orthants,numIter,epsilon,outfile);
+			}
+			else {
+				projToRandomGeodesics(trees,trees,orthants,numIter,epsilon,outfile);
+			}
     		System.exit(0);
     	}
+		
 		
 		// Algorithms that write to outfile.
 		// Open output file
@@ -135,6 +142,15 @@ public class PCA {
         			outfileStream.println(calcGeoDist(t,t.projectToGeo(geo, epsilon)));
         		}
         	}
+        	else if (algorithm.equals("all")) {
+    			if (otherTrees != null) {
+    				projToAllGeodesics(trees,otherTrees,orthants,epsilon,outfileStream);
+    			}
+    			else {
+    				projToAllGeodesics(trees,trees,orthants,epsilon,outfileStream);
+    			}
+    			System.exit(0);
+    		}
         	else {
 				System.out.println("Error:  no command specified.\n");
 				System.exit(1);
@@ -154,21 +170,23 @@ public class PCA {
 		System.exit(0);		
 	}
 		
-		
-	/**  Choose 2 trees at random from trees, compute the geodesic between them,
+	
+	/**  Choose 2 trees at random from endptTrees, compute the geodesic between them,
 	 *  compute the sum of square distances of each tree in trees, projected onto
 	 *  this geodesic. 
 	 *  Repeat this for numIter iterations, and for each iteration write the following
 	 *  to a new file called outFile_<iteration number>:  
 	 *  first tree index in trees, second tree index in trees, 
 	 *  num of orthants geodesic passes through (if orthants is true), sum of square distances
+	 *  Just pass in trees for the first two parameters to use only one set of trees for everything.
 	 * 
 	 * @param trees
+	 * @param otherTrees
 	 * @param orthants
 	 * @param numIter
 	 * @param outFile
 	 */
-	public static void projToRandomGeodesics(PhyloTree[] trees, Boolean orthants, int numIter, double epsilon,String outFile) {
+	public static void projToRandomGeodesics(PhyloTree[] trees, PhyloTree[] endptTrees, Boolean orthants, int numIter, double epsilon,String outFile) {
 		XORShiftRandom r = new XORShiftRandom();
 		
 		for (int i = 0; i < numIter; i++) {
@@ -187,16 +205,16 @@ public class PCA {
 				}
 		
 	       		// pick two trees at random
-	       		int i1 = r.nextInt(trees.length);
-	       		int i2 = r.nextInt(trees.length);
+	       		int i1 = r.nextInt(endptTrees.length);
+	       		int i2 = r.nextInt(endptTrees.length);
 	       		while (i2 == i1) {
-	       			i2 = r.nextInt(trees.length);
+	       			i2 = r.nextInt(endptTrees.length);
 	       		}
 	       		
 	       		// print tree indices to file
 	       		outputStream.print(i1 + "\t" + i2 + "\t");
 			
-	       		Geodesic geo  = getGeodesic(trees[i1],trees[i2],null);
+	       		Geodesic geo  = getGeodesic(endptTrees[i1],endptTrees[i2],null);
 	       		// print number of orthants geo passes through to file, if desired
 	       		if (orthants) {
 		       		// get number of orthants that the geodesic passes through
@@ -214,16 +232,75 @@ public class PCA {
 	       		}
 			} 
 			catch (FileNotFoundException e) {
-				System.out.println("Error opening or writing to " + outFile + ": "+ e.getMessage());
+				System.out.println("Error opening or writing to " + outFile + "_" + i + ": "+ e.getMessage());
 	    		System.exit(1);
 			} 
 			catch (IOException e) {
-				System.out.println("Error opening or writing to " + outFile + ": " + e.getMessage());
+				System.out.println("Error opening or writing to " + outFile + "_" + i + ": " + e.getMessage());
 				System.exit(1);
 			} // end try/catch
 		} // end for
 	}	// end method
+	
+	
+	
+	/**  For each pair of trees in the treefile, compute the geodesic between them,
+	 *  and compute the sum of square distances of each tree in trees, projected onto
+	 *  this geodesic. 
+	 *  Write the following to outfile for the best scoring geodesic:
+	 *  first tree index in trees, second tree index in trees, 
+	 *  num of orthants geodesic passes through (if orthants is true), sum of square distances
+	 * 
+	 * @param trees
+	 * @param orthants
+	 * @param outFile
+	 */
+	public static void projToAllGeodesics(PhyloTree[] trees, PhyloTree[] endptTrees, Boolean orthants, double epsilon, PrintWriter out) throws IOException {
+		double minScore = -1;
+		int minIndex1 = 0;
+		int minIndex2 = 0;
 		
+		
+		for (int i = 0; i < trees.length-1; i++) {
+			for (int j = i+1; j<trees.length; j++) {
+				Geodesic geo  = getGeodesic(endptTrees[i],endptTrees[j],null);
+				double score = scoreProjsToGeodesic(geo,trees, epsilon);
+				if (score < minScore || minScore == -1) {
+					minScore = score;
+					minIndex1 = i;
+					minIndex2 = j;
+				}
+			} // end inner for loop
+		} // end out for loop
+		
+		
+		// print the info about the lowest scoring geodesic to out (output stream for outfile)		
+			if (orthants) {
+					out.println("Index 1\tIndex 2\tNum Orthants\tGeo Distance\tScore");
+			}
+			else {
+				out.println("Index 1\tIndex 2\tGeo Distance\tScore");
+			}
+			       		
+	        // print tree indices to file
+	       	out.print(minIndex1 + "\t" + minIndex2 + "\t");
+			
+	       	Geodesic geo  = getGeodesic(trees[minIndex1],trees[minIndex2],null);
+	       	// print number of orthants geo passes through to file, if desired
+	       	if (orthants) {
+		       	// get number of orthants that the geodesic passes through
+	       		out.print(geo.numTopologies() + "\t");
+	       	}
+	       	//print geodesic distance to file
+	       	out.print(geo.getDist() + "\t");
+	       		
+	       	// print sum of squares distance to file
+	       	out.println(Tools.roundSigDigits(minScore,6));
+	}	// end method
+	
+	
+	
+	
 	
 	/** Computes the sum of square distances of the trees in trees to
 	 * their projections onto the geodesic between trees t1 and t2.
