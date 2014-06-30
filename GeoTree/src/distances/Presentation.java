@@ -14,8 +14,9 @@ public class Presentation {
 	 * 
 	 * @param trees
 	 * @param file
+	 * @throws Exception 
 	 */
-	public static void printTreesToFile(PhyloTree[] trees, String file) {
+	public static void printTreesToFile(PhyloTree[] trees, String file) throws Exception {
 		int numTrees = trees.length;
 		
 		PrintWriter outputStream = null;
@@ -37,10 +38,10 @@ public class Presentation {
 			}
         } catch (FileNotFoundException e) {
         	System.out.println("Error opening or writing to " + file + ": "+ e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + file + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 	}
 	
@@ -65,8 +66,9 @@ public class Presentation {
 	 * 
 	 * @param s
 	 * @param outfile
+	 * @throws Exception 
 	 */
-	public static void printStringToFile(String s, String outfile) {
+	public static void printStringToFile(String s, String outfile) throws Exception {
 		PrintWriter outputStream = null;
 		  
         try {
@@ -79,10 +81,10 @@ public class Presentation {
 			}
         } catch (FileNotFoundException e) {
         	System.out.println("Error opening or writing to " + outfile + ": "+ e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 		
 	}

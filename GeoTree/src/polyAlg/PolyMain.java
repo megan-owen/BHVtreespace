@@ -57,9 +57,10 @@ public class PolyMain {
  * 
  * If one of the trees has 0 edges, then all edges in the other tree will be compatible with it.
  * Thus we will not get any more subtree pairs with disjoint leaves, and should return.
+ * @throws Exception 
  * 
  */
-public static void splitOnCommonEdge(PhyloTree t1, PhyloTree t2) {
+public static void splitOnCommonEdge(PhyloTree t1, PhyloTree t2) throws Exception {
 	int numEdges1 = t1.getEdges().size(); // number of edges in tree 1
 	int numEdges2 = t2.getEdges().size(); /// number of edges in tree 2
 
@@ -141,8 +142,9 @@ public static void splitOnCommonEdge(PhyloTree t1, PhyloTree t2) {
  *  Exits with error message if there is an error in the Newick of any tree.
  * @param inFileName
  * @return
+ * @throws Exception 
  */
-public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted) {
+public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted) throws Exception {
 	int numTrees =0;  // count the number of trees read in
 	boolean nexus = false;
 	Vector<String> stringTrees = new Vector<String>();
@@ -160,10 +162,10 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
         inputStream.close();
 	} catch (FileNotFoundException e) {
         System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-        System.exit(1);
+        throw new Exception();
     } catch (IOException e) {
     	System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     }
 	
     // File is not in NEXUS format.  Assume it is a list of trees in Newick format,
@@ -194,10 +196,10 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
         }
     } catch (FileNotFoundException e) {
         System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-        System.exit(1);
+        throw new Exception();
     } catch (IOException e) {
     	System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     }
     }
     else {
@@ -223,7 +225,7 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     }
     if (treesWithErrors > 0) {
     	System.out.println("Exiting: errors in " + treesWithErrors + " trees");
-    	System.exit(1);
+    	throw new Exception();
     }
     
     // verify all trees have the same leaf set
@@ -234,7 +236,7 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     			System.out.println("Warning:  tree at line " + (i + 1) + " does not have same leaves as first tree in file");
     			System.out.println("Line 1 tree leaf set: " + leaf2NumMap );
     			System.out.println("Line " + (i+1) + " tree leaf set: " + trees[i].getLeaf2NumMap());
-    			System.exit(1);
+    			throw new Exception();
     		}
     	}
     }
@@ -245,9 +247,10 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
  *  Calls recursive getGeodesic
  *  Does not assume t1 and t2 have the same number of edges.
  *  Pass in null for geoFile to not write to a file.
+ * @throws Exception 
  * 
  */
-public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) {
+public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) throws Exception {
 	double leafContributionSquared = 0;
 	EdgeAttribute [] t1LeafEdgeAttribs = t1.getLeafEdgeAttribs();
 	EdgeAttribute [] t2LeafEdgeAttribs = t2.getLeafEdgeAttribs();
@@ -265,7 +268,7 @@ public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) {
 			System.out.println("Starting tree: " + t1.getNewick(true));
 			System.out.println("Target tree: " + t2.getNewick(true));
 			
-			System.exit(1);
+			throw new Exception();
 		}
 //		System.out.println("leaf: " + t1.getLeaf2NumMap().get(i) + " | " + t1LeafEdgeLengths[i] + " - " + t2LeafEdgeLengths[i] + "| = " + (t1LeafEdgeLengths[i] - t2LeafEdgeLengths[i]) );
 
@@ -400,10 +403,10 @@ public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) {
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error opening or writing to " + geoFile + ": "+ e.getMessage());
-            System.exit(1);
+            throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + geoFile + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 	}
 	
@@ -438,10 +441,10 @@ public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) {
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error opening or writing to " + geoFile + ": "+ e.getMessage());
-            System.exit(1);
+            throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + geoFile + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 	}
 	return geo;
@@ -454,8 +457,9 @@ public static Geodesic getGeodesic(PhyloTree t1, PhyloTree t2, String geoFile) {
  *  XXX: how to deal with multifurcating trees
  * 
  *  Returns:  a Geodesic with just the ratio sequence set 
+ * @throws Exception 
  */
-public static Geodesic getGeodesicNoCommonEdges(PhyloTree t1, PhyloTree t2 ) {
+public static Geodesic getGeodesicNoCommonEdges(PhyloTree t1, PhyloTree t2 ) throws Exception {
 	int numEdges1 = t1.getEdges().size(); // number of edges in tree 1
 	int numEdges2 = t2.getEdges().size(); // number of edges in tree 2
 	RatioSequence rs = new RatioSequence();
@@ -472,13 +476,13 @@ public static Geodesic getGeodesicNoCommonEdges(PhyloTree t1, PhyloTree t2 ) {
 	Vector<PhyloTreeEdge> commonEdges = PhyloTree.getCommonEdges(t1, t2);
 	if (commonEdges.size() != 0) {
 		System.out.println("Exiting: tried to compute geodesic between subtrees that should not have common edges, but do!  t1 = " + t1 + " and t2 = " + t2);
-		System.exit(1);
+		throw new Exception();
 	}
 	
 	// double-check that both trees have splits.  Otherwise didn't remove a common edge.
 	if (numEdges1 ==0 || numEdges2 == 0) {
 		System.out.println("Exiting: tried to compute geodesic between subtrees that should not have common/compatible edges, but do!  t1 = " + t1 + " and t2 = " + t2);
-		System.exit(1);
+		throw new Exception();
 	}
 	
 	// if we can't split the ratio because it has too few edges in either the numerator or denominator
@@ -566,8 +570,9 @@ public static Geodesic getGeodesicNoCommonEdges(PhyloTree t1, PhyloTree t2 ) {
  * @param trees
  * @param algorithm
  * @return
+ * @throws Exception 
  */
-public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, boolean doubleCheck) {
+public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, boolean doubleCheck) throws Exception {
 	Date startTime;
 	Date endTime;
 	int numTrees = trees.length;
@@ -638,9 +643,10 @@ public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, boolean d
 	
 /** Open file fileName, reads in the trees, and outputs the distances computed by the polynomial distance algorithm.
  *  Assumes first line of file is number of trees, and then one tree per line.
+ * @throws Exception 
  *
  */
-public static void computeAllInterTreeGeodesicsFromFile(String inFileName, String outFileName, boolean doubleCheck, boolean rooted){
+public static void computeAllInterTreeGeodesicsFromFile(String inFileName, String outFileName, boolean doubleCheck, boolean rooted) throws Exception{
 
     
     PhyloTree[] trees = readInTreesFromFile(inFileName,rooted);
@@ -673,19 +679,20 @@ public static void computeAllInterTreeGeodesicsFromFile(String inFileName, Strin
         }
     } catch (FileNotFoundException e) {
         System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
-        System.exit(1);
+        throw new Exception();
     } catch (IOException e) {
     	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     }
 }
 	
 
 /** Open file fileName, reads in the trees, and outputs the distances computed by the polynomial distance algorithm.
  *  Assumes first line of file is number of trees, and then one tree per line.
+ * @throws Exception 
  *
  */
-public static void computeGeodesicsLargeFile(String inFileName, String outFileName, boolean rooted){
+public static void computeGeodesicsLargeFile(String inFileName, String outFileName, boolean rooted) throws Exception{
 
     
     PhyloTree[] trees = readInTreesFromFile(inFileName,rooted);
@@ -714,10 +721,10 @@ public static void computeGeodesicsLargeFile(String inFileName, String outFileNa
         }
     } catch (FileNotFoundException e) {
         System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
-        System.exit(1);
+        throw new Exception();
     } catch (IOException e) {
     	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     }
 }
 
@@ -739,8 +746,9 @@ public static void displayHelp() {
 	
 /**
  * @param args
+ * @throws Exception 
  */
-public static void main(String[] args) {
+public static void main(String[] args) throws Exception {
 	String treeFile = "";
 	String outFile = "output.txt"; // default
 	boolean doubleCheck = false;
@@ -860,8 +868,9 @@ public static void main(String[] args) {
  * 
  * @param treeFile
  * @param outFile
+ * @throws Exception 
  */
-public static PhyloTree getMinLabelling(PhyloTree tree1, PhyloTree tree2, String outFile) {
+public static PhyloTree getMinLabelling(PhyloTree tree1, PhyloTree tree2, String outFile) throws Exception {
 	int numIter = 100;
 	double potentialGeo;
 	PhyloTree potentialTree;
@@ -912,7 +921,7 @@ public static PhyloTree getMinLabelling(PhyloTree tree1, PhyloTree tree2, String
 }
 
 
-public static double calcGeoDist(PhyloTree t1, PhyloTree t2) {
+public static double calcGeoDist(PhyloTree t1, PhyloTree t2) throws Exception {
 	return getGeodesic(t1, t2, null).getDist();
 }
 

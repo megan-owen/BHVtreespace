@@ -36,8 +36,9 @@ public class Distances {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String treeFile = "";
 		String otherTreeFile = null;
 		String outFile = "dist_"; // default
@@ -49,29 +50,29 @@ public class Distances {
 
 		if (args.length < 1) {
 			displayHelp();
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(0); }
+			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.out.println("Finished"); }
 
 			// specify distance
 			else if (args[i].equals("-d")) {
 				if (i < args.length -2) { distance = args[i+1]; i++; }
-				else { System.err.println("Error: distance not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: distance not specified"); displayHelp(); throw new Exception(); }
 			}
 			
 			// other tree file, if desired
 			else if (args[i].equals("-f")) {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outFile = args[i+1]; i++; }
-				else { displayHelp(); System.exit(0); }
+				else { displayHelp(); System.out.println("Finished"); }
 			}
 			
 			// all other arguments.  Note we can have -vn
@@ -83,13 +84,13 @@ public class Distances {
 //					case 'c':  doubleCheck = true;  break;
 						
 					// display help
-					case 'h':  displayHelp();  System.exit(0);  break;				
+					case 'h':  displayHelp();  System.out.println("Finished");  break;				
 												
 					// unrooted trees?
 					case 'u': rooted = false;  break;
 							
 					default:
-						System.out.println("Illegal command line option.\n");  displayHelp();  System.exit(0);  break;
+						System.out.println("Illegal command line option.\n");  displayHelp();  System.out.println("Finished");  break;
 					} // end switch
 				} // end for j
 			} // end parsing an individual argument
@@ -128,7 +129,7 @@ public class Distances {
 	       				}
 	       				else {
 	       					System.out.println("Error:  invalid distance.\n");
-	       					System.exit(1);
+	       					throw new Exception();
 	       				}
 	       			}
 				}
@@ -148,7 +149,7 @@ public class Distances {
 		       			}
 		       			else {
 		       				System.out.println("Error:  invalid distance.\n");
-		       				System.exit(1);
+		       				throw new Exception();
 		       			}
 		       		}
 	       		}
@@ -158,10 +159,10 @@ public class Distances {
 	        }
 	    } catch (FileNotFoundException e) {
 	        System.out.println("Error opening or writing to " + outFile + ": "+ e.getMessage());
-	        System.exit(1);
+	        throw new Exception();
 	    } catch (IOException e) {
 	    	System.out.println("Error opening or writing to " + outFile + ": " + e.getMessage());
-	    	System.exit(1);
+	    	throw new Exception();
 	    }
 		
 	}
@@ -178,14 +179,15 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static int rf(PhyloTree t1, PhyloTree t2) {
+	public static int rf(PhyloTree t1, PhyloTree t2) throws Exception {
 		
 		if (!(t1.getLeaf2NumMap().equals(t2.getLeaf2NumMap()))){
 			System.out.println("Error: the two trees do not have the same leaves");
 			System.out.println("Tree 1 leaves: " + t1.getLeaf2NumMap() );
 			System.out.println("Tree 2 leaves: " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		int rf = 0;
@@ -210,15 +212,16 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double getLeafSpaceL2Dist(PhyloTree t1, PhyloTree t2) {
+	public static double getLeafSpaceL2Dist(PhyloTree t1, PhyloTree t2) throws Exception {
 		double sumOfSquares = 0;
 		
 		if (!(t1.getLeaf2NumMap().equals(t2.getLeaf2NumMap()))){
 			System.out.println("Error: the two trees do not have the same leaves");
 			System.out.println("Tree 1 leaves: " + t1.getLeaf2NumMap() );
 			System.out.println("Tree 2 leaves: " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		for(int i = 0; i < t1.getLeafEdgeAttribs().length; i++) {
@@ -232,15 +235,16 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double weightedRF(PhyloTree t1, PhyloTree t2) {
+	public static double weightedRF(PhyloTree t1, PhyloTree t2) throws Exception {
 		double rf = 0.0;
 				
 		if (!(t1.getLeaf2NumMap().equals(t2.getLeaf2NumMap()))){
 			System.out.println("Error: the two trees do not have the same leaves");
 			System.out.println("Tree 1 leaves: " + t1.getLeaf2NumMap() );
 			System.out.println("Tree 2 leaves: " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		// leaf contributions
@@ -271,13 +275,14 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double conePath(PhyloTree t1, PhyloTree t2) {
+	public static double conePath(PhyloTree t1, PhyloTree t2) throws Exception {
 		if (!(t1.getLeaf2NumMap().equals(t2.getLeaf2NumMap()))){
 			System.out.println("Error: the two trees do not have the same leaves");
 			System.out.println("Tree 1 leaves: " + t1.getLeaf2NumMap() );
 			System.out.println("Tree 2 leaves: " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		double t1norm = l2norm(t1.getEdgesIncompatibleWith(t2));		// norm of the vectors of the edges only in t1
@@ -293,13 +298,14 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double conePathDisjointNoLeaves(PhyloTree t1, PhyloTree t2) {
+	public static double conePathDisjointNoLeaves(PhyloTree t1, PhyloTree t2) throws Exception {
 		if (!(t1.getLeaf2NumMap().equals(t2.getLeaf2NumMap()))){
 			System.out.println("Error computing the cone path between disjoint trees: the two trees do not have the same leaves");
 			System.out.println("Tree 1 leaves: " + t1.getLeaf2NumMap() );
 			System.out.println("Tree 2 leaves: " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		double t1norm = l2norm(t1.getEdges());		// norm of the vectors of the edges only in t1
@@ -331,13 +337,14 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double siDisjointNoLeaves(PhyloTree t1, PhyloTree t2) {
+	public static double siDisjointNoLeaves(PhyloTree t1, PhyloTree t2) throws Exception {
 		// Check that trees are disjoint and exit with error if they have common edges.
 		Vector<PhyloTreeEdge> commonEdges = PhyloTree.getCommonEdges(t1, t2);
 		if (commonEdges.size() > 0) { 
 			System.out.println("Error:  trees need to be disjoint to compute siDisjointNoLeaves:  common edges are " + commonEdges);
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		double conePathDist = conePathDisjointNoLeaves(t1,t2);
@@ -355,13 +362,14 @@ public class Distances {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double si(PhyloTree t1, PhyloTree t2) {
+	public static double si(PhyloTree t1, PhyloTree t2) throws Exception {
 		return PolyMain.getGeodesic(t1, t2, null).getDist()/conePath(t1,t2);
 	}
 	
 	
-	public static double si2(PhyloTree t1, PhyloTree t2) {
+	public static double si2(PhyloTree t1, PhyloTree t2) throws Exception {
 		return PolyMain.getGeodesic(t1,t2,null).getDist()/(t1.getDistanceFromOrigin() + t2.getDistanceFromOrigin());
 	}
 }
@@ -453,10 +461,10 @@ public class Distances {
 //	}
 //} catch (FileNotFoundException e) {
 //	System.out.println("Error opening or writing to " + outFile + ": "+ e.getMessage());
-//	System.exit(1);
+//	throw new Exception();
 //} catch (IOException e) {
 //	System.out.println("Error opening or writing to " + outFile + ": " + e.getMessage());
-//	System.exit(1);
+//	throw new Exception();
 //}
 //
-//System.exit(0); 
+//System.out.println("Finished"); 

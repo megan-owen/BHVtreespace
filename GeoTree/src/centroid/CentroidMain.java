@@ -69,148 +69,151 @@ public class CentroidMain {
 		int bootstrapRep = 0;
 		
 		/* Parse command line arguments */
-
-		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
-		}
-		treeFile = args[args.length-1];
-		
-		// check that the user hasn't inputted just -h
-		if (treeFile.equals("-h")) {
-			displayHelp(); System.exit(0);
-		}
-		
-		for (int i = 0; i < args.length - 1; i++) {
+		try{
+			if (args.length < 1) {
+				System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
+			}
+			treeFile = args[args.length-1];
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(1); }
-
-			// number of iterations
-			else if (args[i].equals("-n")) {
-				if (i < args.length -2) {
-					numIter = Integer.valueOf(args[i+1]); i++;
-					if (numIter < 2) { System.err.println("Error:  number of iterations must be greater than 1"); System.exit(1); }
-				}
-				else { System.err.println("Error: number of iterations not specified"); displayHelp(); System.exit(1); }
+			// check that the user hasn't inputted just -h
+			if (treeFile.equals("-h")) {
+				displayHelp(); System.exit(0);
 			}
-			// output file
-			else if (args[i].equals("-o")) {
-				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); System.exit(1); }
-			}	
-			// algorithm for choosing next tree
-			else if (args[i].equals("-a")) {
-				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); System.exit(1); }
-			}
-			// use a set of trees bootstrapped from the input trees; 
-			// parameter is the number of bootstrap replicates
-			else if (args[i].equals("-b")) {
-				if (i < args.length - 2) { bootstrapRep = Integer.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: number of bootstrap replicates not specifie"); displayHelp(); System.exit(1); }
-			}
-			// display states every i iterations
-			else if (args[i].equals("-i")) {
-				if (i < args.length -2) { displayIter = Integer.valueOf(args[i+1]); i++; }
-				else { displayHelp(); System.exit(1); }
-			}
-			// start displaying the state after s iterations
-			else if (args[i].equals("-s")) {
-				if (i < args.length -2) { displayStart = Integer.valueOf(args[i+1]); i++; }
-				else { displayHelp(); System.exit(1); }
-			}
-			// length of Cauchy sequence determining convergence
-			else if (args[i].equals("-c")) {
-				if (i < args.length - 2) { cauchyLength = Integer.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: length of Cauchy sequence for determining convergence not specified"); displayHelp(); System.exit(1); }
-			}
-			// epsilon 
-			else if (args[i].equals("-e")) {
-				if (i < args.length - 2) { epsilon = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: epsilon for determining convergence not specified"); displayHelp(); System.exit(1); }
-			}
-			// epsilon factor (used in computing epsilon)
-			else if (args[i].equals("-f")) {
-				if (i < args.length - 2) { epsilonFactor = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: epsilon factor for determining convergence not specified"); displayHelp(); System.exit(1); }
-			}	
+			
+			for (int i = 0; i < args.length - 1; i++) {
 				
-			// all other arguments.  Note we can have -vn
-			else { 
-				for (int j = 1; j<args[i].length(); j++) {
-					switch(args[i].charAt(j)) {						
-					// display help
-					case 'h': displayHelp(); System.exit(0); break;
-					// permute leaves	
-					case 'p': permute = true; break;
-					// set trees to be unrooted
-					case 'u': rooted = false; break;
+				if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
+		
+				// number of iterations
+				else if (args[i].equals("-n")) {
+					if (i < args.length -2) {
+						numIter = Integer.valueOf(args[i+1]); i++;
+						if (numIter < 2) { System.err.println("Error:  number of iterations must be greater than 1"); throw new Exception(); }
+					}
+					else { System.err.println("Error: number of iterations not specified"); displayHelp(); throw new Exception(); }
+				}
+				// output file
+				else if (args[i].equals("-o")) {
+					if (i < args.length -2) { outfile = args[i+1]; i++; }
+					else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
+				}	
+				// algorithm for choosing next tree
+				else if (args[i].equals("-a")) {
+					if (i < args.length -2) { algorithm = args[i+1]; i++; }
+					else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
+				}
+				// use a set of trees bootstrapped from the input trees; 
+				// parameter is the number of bootstrap replicates
+				else if (args[i].equals("-b")) {
+					if (i < args.length - 2) { bootstrapRep = Integer.valueOf(args[i+1]); i++; }
+					else { System.err.println("Error: number of bootstrap replicates not specifie"); displayHelp(); throw new Exception(); }
+				}
+				// display states every i iterations
+				else if (args[i].equals("-i")) {
+					if (i < args.length -2) { displayIter = Integer.valueOf(args[i+1]); i++; }
+					else { displayHelp(); throw new Exception(); }
+				}
+				// start displaying the state after s iterations
+				else if (args[i].equals("-s")) {
+					if (i < args.length -2) { displayStart = Integer.valueOf(args[i+1]); i++; }
+					else { displayHelp(); throw new Exception(); }
+				}
+				// length of Cauchy sequence determining convergence
+				else if (args[i].equals("-c")) {
+					if (i < args.length - 2) { cauchyLength = Integer.valueOf(args[i+1]); i++; }
+					else { System.err.println("Error: length of Cauchy sequence for determining convergence not specified"); displayHelp(); throw new Exception(); }
+				}
+				// epsilon 
+				else if (args[i].equals("-e")) {
+					if (i < args.length - 2) { epsilon = Double.valueOf(args[i+1]); i++; }
+					else { System.err.println("Error: epsilon for determining convergence not specified"); displayHelp(); throw new Exception(); }
+				}
+				// epsilon factor (used in computing epsilon)
+				else if (args[i].equals("-f")) {
+					if (i < args.length - 2) { epsilonFactor = Double.valueOf(args[i+1]); i++; }
+					else { System.err.println("Error: epsilon factor for determining convergence not specified"); displayHelp(); throw new Exception(); }
+				}	
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
-					} // end switch
-				} // end j loop (arguments without parameter)
-			} // end parsing an individual argument
-		}  // end for i (looping through arguments)
-		
-		/* Read in the trees  */
-		
-		PhyloTree[] trees = PolyMain.readInTreesFromFile(treeFile,rooted);
-		int numTrees = trees.length;
-		System.out.println("Num. trees = " + numTrees);
-		
-		/*  Permute leaves in all trees, if desired. */
-		if (permute) {
-			for (int i = 0; i < trees.length; i++) {
-				trees[i].permuteLeaves();
-			}
-			System.out.println("Permuting leaves of input trees.");
-		}
-		
-		/* Use bootstrap replicates instead, if desired. */
-		if (bootstrapRep > 0) {
-			trees = PhyloTree.resample(trees,bootstrapRep);
-			numTrees = trees.length;
-			System.out.println("Using bootstrap replicates as tree set.");
-		}
-		
-		// if there was only one tree in the file, that tree is the mean tree
-		// TODO:  write to file
-		if (numTrees == 1) {
-			System.out.println("Mean tree is " + trees[0]);
-			System.exit(0);
-		}
-
-		
-		PhyloTree star = Analysis.getStarTree(trees);	
-		System.out.println("Star tree is " + star.getNewick(true));
-		
-		double stdDevStar = stdDev(star,trees);	
-		System.out.println("Standard deviation if star tree is mean: " + stdDevStar);
-		
-		/* Pre-processing to determine epsilon for convergence test. */
-		if (epsilon <= 0) {
-			epsilon = getEpsilon(trees,epsilonFactor);  // info about this printed in getEpsilon method
-		}
+				// all other arguments.  Note we can have -vn
+				else { 
+					for (int j = 1; j<args[i].length(); j++) {
+						switch(args[i].charAt(j)) {						
+						// display help
+						case 'h': displayHelp(); System.exit(0); break;
+						// permute leaves	
+						case 'p': permute = true; break;
+						// set trees to be unrooted
+						case 'u': rooted = false; break;
+						
+						default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
+						} // end switch
+					} // end j loop (arguments without parameter)
+				} // end parsing an individual argument
+			}  // end for i (looping through arguments)
 			
-		// algorithm chooses the next tree at random; convergence tested by Cauchy sequence
-		if (algorithm.equals("random") && !twoRuns) {
-			getCentroidViaRandomCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			/* Read in the trees  */
+			
+			PhyloTree[] trees = PolyMain.readInTreesFromFile(treeFile,rooted);
+			int numTrees = trees.length;
+			System.out.println("Num. trees = " + numTrees);
+			
+			/*  Permute leaves in all trees, if desired. */
+			if (permute) {
+				for (int i = 0; i < trees.length; i++) {
+					trees[i].permuteLeaves();
+				}
+				System.out.println("Permuting leaves of input trees.");
+			}
+			
+			/* Use bootstrap replicates instead, if desired. */
+			if (bootstrapRep > 0) {
+				trees = PhyloTree.resample(trees,bootstrapRep);
+				numTrees = trees.length;
+				System.out.println("Using bootstrap replicates as tree set.");
+			}
+			
+			// if there was only one tree in the file, that tree is the mean tree
+			// TODO:  write to file
+			if (numTrees == 1) {
+				System.out.println("Mean tree is " + trees[0]);
+				System.exit(0);
+			}
+	
+			
+			PhyloTree star = Analysis.getStarTree(trees);	
+			System.out.println("Star tree is " + star.getNewick(true));
+			
+			double stdDevStar = stdDev(star,trees);	
+			System.out.println("Standard deviation if star tree is mean: " + stdDevStar);
+			
+			/* Pre-processing to determine epsilon for convergence test. */
+			if (epsilon <= 0) {
+				epsilon = getEpsilon(trees,epsilonFactor);  // info about this printed in getEpsilon method
+			}
+				
+			// algorithm chooses the next tree at random; convergence tested by Cauchy sequence
+			if (algorithm.equals("random") && !twoRuns) {
+				getCentroidViaRandomCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			}
+			else if (algorithm.equals("random") && twoRuns) {
+				getCentroidViaRandomTwoRuns(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			}
+			// algorithm orders all trees randomly, chooses them in this order, 
+			// then chooses a new random order of the trees for the next round
+			else if (algorithm.equals("rand_perm") && twoRuns) {
+				getCentroidViaRandPermTwoRuns(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			}
+			else if( algorithm.equals("rand_perm") && !twoRuns ) {
+				getCentroidViaRandPermCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			}
+			else {
+				System.out.println("Error:  unknown algorithm");
+				throw new Exception();
+			}
 		}
-		else if (algorithm.equals("random") && twoRuns) {
-			getCentroidViaRandomTwoRuns(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+		catch(Exception error){
+			System.out.println("YEET, you dun goofed.");
 		}
-		// algorithm orders all trees randomly, chooses them in this order, 
-		// then chooses a new random order of the trees for the next round
-		else if (algorithm.equals("rand_perm") && twoRuns) {
-			getCentroidViaRandPermTwoRuns(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
-		}
-		else if( algorithm.equals("rand_perm") && !twoRuns ) {
-			getCentroidViaRandPermCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
-		}
-		else {
-			System.out.println("Error:  unknown algorithm");
-			System.exit(1);
-		}
-
 		System.exit(0);
 	}
 	
@@ -225,8 +228,9 @@ public class CentroidMain {
 	 * @param epsilon
 	 * @param numIter
 	 * @return
+	 * @throws Exception 
 	 */
-	public static PhyloTree getCentroidViaRandPermCauchy(PhyloTree[] trees, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
+	public static PhyloTree getCentroidViaRandPermCauchy(PhyloTree[] trees, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -288,7 +292,7 @@ public class CentroidMain {
 		}
 	}
 	
-	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
+	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -351,7 +355,7 @@ public class CentroidMain {
 
 	}
 	
-	public static PhyloTree getCentroidViaRandomTwoRuns(PhyloTree[] trees,int numIter, int matchLength, double epsilon,String outfile, int displayIter, int displayStart) {
+	public static PhyloTree getCentroidViaRandomTwoRuns(PhyloTree[] trees,int numIter, int matchLength, double epsilon,String outfile, int displayIter, int displayStart) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -410,7 +414,7 @@ public class CentroidMain {
 	}
 
 	
-	public static PhyloTree getCentroidViaRandPermTwoRuns(PhyloTree[] trees,int numIter, int matchLength,double epsilon, String outfile, int displayIter, int displayStart) {
+	public static PhyloTree getCentroidViaRandPermTwoRuns(PhyloTree[] trees,int numIter, int matchLength,double epsilon, String outfile, int displayIter, int displayStart) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -482,8 +486,9 @@ public class CentroidMain {
 	 * @param oldCentroids
 	 * @param epsilon
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTree> checkCauchyConvergence(Vector<PhyloTree> centroids, double epsilon, int cauchyLength) {
+	public static Vector<PhyloTree> checkCauchyConvergence(Vector<PhyloTree> centroids, double epsilon, int cauchyLength) throws Exception {
 		int secondLastCentroidIndex = centroids.size() - 1; 
 		int lastIndexToKeep = -1;
 		
@@ -512,15 +517,17 @@ public class CentroidMain {
 	 * @param i
 	 * @param centroid
 	 * @param trees
+	 * @throws Exception 
 	 */
-	public static void report(int i, PhyloTree centroid, PhyloTree[] trees) {
+	public static void report(int i, PhyloTree centroid, PhyloTree[] trees) throws Exception {
 		System.out.println("Centroid candidate " + i + " with score " + sumOfSquareDist(centroid,trees) + " = " + centroid);
 	}
 	
 	/** Outputs and writes to file mean tree and convergence info.
+	 * @throws Exception 
 	 *  
 	 */
-	public static void displayCauchy(String algorithm,long numIter, int cauchyLength, double epsilon, boolean converge,PhyloTree centroid, PhyloTree[] trees, String outfile) {
+	public static void displayCauchy(String algorithm,long numIter, int cauchyLength, double epsilon, boolean converge,PhyloTree centroid, PhyloTree[] trees, String outfile) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		double stdDevOfCentroid = stdDev(centroid,trees);
 		PrintWriter outputStream;
@@ -561,11 +568,11 @@ public class CentroidMain {
         		}
         	} catch (FileNotFoundException e) {
         		System.out.println("Error opening or writing to " + outfile + ": "+ e.getMessage());
-        		System.exit(1);
+        		throw new Exception();
         	} catch (IOException e) {
         		System.out.println("Error opening or " +
         			"writing to " + outfile + ": " + e.getMessage());
-        		System.exit(1);
+        		throw new Exception();
         	}
         }
 	}
@@ -581,8 +588,9 @@ public class CentroidMain {
 	 * @param centroid2
 	 * @param trees
 	 * @param outfile
+	 * @throws Exception 
 	 */
-	public static void displayTwoRuns(String algorithm,long numIter,int matchLength ,double epsilon,boolean converge, PhyloTree centroid, PhyloTree centroid2,PhyloTree[] trees,String outfile) {
+	public static void displayTwoRuns(String algorithm,long numIter,int matchLength ,double epsilon,boolean converge, PhyloTree centroid, PhyloTree centroid2,PhyloTree[] trees,String outfile) throws Exception {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		double stdDevCentroid = stdDev(centroid,trees);
 		double stdDevCentroid2 = stdDev(centroid2,trees);
@@ -641,11 +649,11 @@ public class CentroidMain {
         		}
         	} catch (FileNotFoundException e) {
         		System.out.println("Error opening or writing to " + outfile + ": "+ e.getMessage());
-        		System.exit(1);
+        		throw new Exception();
         	} catch (IOException e) {
         		System.out.println("Error opening or " +
         			"writing to " + outfile + ": " + e.getMessage());
-        		System.exit(1);
+        		throw new Exception();
         	}
         }
 	}
@@ -656,8 +664,9 @@ public class CentroidMain {
 	 * 
 	 * @param trees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double getEpsilon(PhyloTree[] trees, double epsilonFactor) {
+	public static double getEpsilon(PhyloTree[] trees, double epsilonFactor) throws Exception {
 		// We'll run through all trees in random order 5 times, compute the variance, and choose the distance between runs based on that.
 		int numRounds = 5;	// number of rounds of all trees
 		PhyloTree testCentroid = null;
@@ -709,8 +718,9 @@ public class CentroidMain {
 	 * @param centroid
 	 * @param trees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double sumOfSquareDist(PhyloTree centroid, PhyloTree[] trees) {
+	public static double sumOfSquareDist(PhyloTree centroid, PhyloTree[] trees) throws Exception {
 		double sumOfSquares = 0;
 		
 		for(int i = 0; i < trees.length; i++) {
@@ -725,8 +735,9 @@ public class CentroidMain {
 	 * @param centroid
 	 * @param trees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double variance(PhyloTree centroid, PhyloTree[] trees) {
+	public static double variance(PhyloTree centroid, PhyloTree[] trees) throws Exception {
 		return 1/( (double) trees.length -1)*sumOfSquareDist(centroid,trees);
 	}
 	
@@ -735,8 +746,9 @@ public class CentroidMain {
 	 * @param centroid
 	 * @param trees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double stdDev(PhyloTree centroid, PhyloTree[] trees) {
+	public static double stdDev(PhyloTree centroid, PhyloTree[] trees) throws Exception {
 		return Math.sqrt(variance(centroid, trees));
 	}
 	

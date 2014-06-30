@@ -38,8 +38,9 @@ public class LDA {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Boolean rooted = true;   // default
 		String treeFile = null;
 		String otherTreeFile = null;
@@ -55,46 +56,46 @@ public class LDA {
 		/* Parse command line arguments */
 
 		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
+			System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(1); }
+			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
 			// specify algorithm
 			else if (args[i].equals("-a")) {
 				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
 			}
 			// epsilon, if desired
 			else if (args[i].equals("-e")) {
 				if (i < args.length -2) { epsilon = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); throw new Exception(); }
 			}
 			// other tree file, if desired
 			else if (args[i].equals("-f")) {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of second tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of second tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			// third tree file, if desired
 			else if (args[i].equals("-g")) {
 				if (i < args.length -2) { thirdTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of third tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of third tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			// number of iterations, if desired
 			else if (args[i].equals("-i")) {
 				if (i < args.length -2) { numIter = Integer.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: number of iterations not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: number of iterations not specified"); displayHelp(); throw new Exception(); }
 			}
 			// means for classification
 			else if (args[i].equals("-m")) {
 				if (i < args.length -2) { means = args[i+1].split(","); i++; }
-				else { System.err.println("Error: means not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: means not specified"); displayHelp(); throw new Exception(); }
 			}
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); System.exit(1); }
+				else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
 			}	
 				
 			// all other arguments.  Note we can have -vn
@@ -102,10 +103,10 @@ public class LDA {
 				for (int j = 1; j<args[i].length(); j++) {
 					switch(args[i].charAt(j)) {						
 					// display help
-					case 'h': displayHelp(); System.exit(0); break;
+					case 'h': displayHelp(); System.out.println("Finished"); break;
 					case 'u': rooted = false; break;
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
+					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
 					} // end switch
 				} // end j loop (arguments without parameter)
 			} // end parsing an individual argument
@@ -132,7 +133,7 @@ public class LDA {
 			if (means != null) {
 				if (means.length < 2) {
 					System.err.println("Error: 2 means must be specified for classify algorithm\n");
-					System.exit(1);
+					throw new Exception();
 				}
 				double mean1 = Double.valueOf(means[0]);
 				double mean2 = Double.valueOf(means[1]);
@@ -141,15 +142,15 @@ public class LDA {
 			}
 			else {
 				System.err.println("Error:  no means specified for classify algorithm\n");
-				System.exit(1);
+				throw new Exception();
 			}
 		}
 		else {
 			System.out.println("Error:  no command specified.\n");
-			System.exit(1);
+			throw new Exception();
 		}
 		
-		System.exit(0);
+		System.out.println("Finished");
 
 	}
 	
@@ -170,8 +171,9 @@ public class LDA {
  * @param numIter
  * @param epsilon
  * @param outfile
+ * @throws Exception 
  */
-	public static void randomLDA(PhyloTree[] set1, PhyloTree[] set2, PhyloTree[] geoEndPts, int numIter, double epsilon, String outfile) {
+	public static void randomLDA(PhyloTree[] set1, PhyloTree[] set2, PhyloTree[] geoEndPts, int numIter, double epsilon, String outfile) throws Exception {
 		XORShiftRandom r = new XORShiftRandom();
 		PhyloTree t1, t2;
 		Vector<String> leaf2NumMap  = set1[0].getLeaf2NumMap();
@@ -221,8 +223,9 @@ public class LDA {
 	 * @param mean2
 	 * @param epsilon
 	 * @param outfile
+	 * @throws Exception 
 	 */
-	public static void classify(PhyloTree[] trees, PhyloTree[] endpoints, double mean1, double mean2, double epsilon, String outfile) {
+	public static void classify(PhyloTree[] trees, PhyloTree[] endpoints, double mean1, double mean2, double epsilon, String outfile) throws Exception {
 		Geodesic geo = getGeodesic(endpoints[0],endpoints[1],null);
 		
 		// open up outfile for writing
@@ -254,11 +257,11 @@ public class LDA {
 		} 
 		catch (FileNotFoundException e) {
 			System.out.println("Error opening or writing to " + outfile + ": "+ e.getMessage());
-    		System.exit(1);
+    		throw new Exception();
 		} 
 		catch (IOException e) {
 			System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
-			System.exit(1);
+			throw new Exception();
 		} // end try/catch
 	}
 	

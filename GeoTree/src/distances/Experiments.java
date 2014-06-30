@@ -4,6 +4,7 @@ import polyAlg.PolyMain;
 import distanceAlg1.Geodesic;
 import distanceAlg1.PhyloTree;
 import distanceAlg1.TreeDistance;
+
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,8 +34,9 @@ public class Experiments {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-public static void main(String[] args) {
+public static void main(String[] args) throws Exception {
 	String treeFile = "";
 	
 	String outFile = "exp_out_" + getTimeStamp(); // default
@@ -43,31 +45,31 @@ public static void main(String[] args) {
 
 	/*  Parse Arguments */
 	if (args.length < 1) {
-		System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
+		System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
 	}
 	treeFile = args[args.length-1];
 	for (int i = 0; i < args.length - 1; i++) {		
 		if (!args[i].startsWith("-")) {
-			System.out.println("Invalid command line option"); displayHelp(); System.exit(1);
+			System.out.println("Invalid command line option"); displayHelp(); throw new Exception();
 		}
 		// output file
 		else if (args[i].equals("-o")) {
 			if (i < args.length -2) {
 				outFile = args[i+1]; i++;
 			}
-			else { System.out.println("Error: Output file not specified"); displayHelp(); System.exit(0); }
+			else { System.out.println("Error: Output file not specified"); displayHelp(); System.out.println("Finished"); }
 		}
 		// all other arguments.  Note we can have -vn
 		else {
 			for (int j = 1; j<args[i].length(); j++) {			
 				switch(args[i].charAt(j)) {						
 					// display help
-					case 'h': Distances.displayHelp(); System.exit(0); break;										
+					case 'h': Distances.displayHelp(); System.out.println("Finished"); break;										
 					// unrooted trees?
 					case 'u': rooted = false; break;
 					// verbose output
 					case 'v': verbose = 1; break;	
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
+					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
 				} // end switch
 			} // end for j
 		} // end parsing an individual argument
@@ -115,10 +117,10 @@ public static void main(String[] args) {
     	inStream.close();
     } catch (FileNotFoundException e) {
     	System.out.println("In Experiments, error opening or writing file: "+ e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     } catch (IOException e) {
     	System.out.println("In Experiments, error opening or writing file: " + e.getMessage());
-    	System.exit(1);
+    	throw new Exception();
     }
 
     
@@ -145,7 +147,7 @@ public static String getTimeStamp() {
 
 
 
-	public static void testDec6 (PhyloTree[] trees) {
+	public static void testDec6 (PhyloTree[] trees) throws Exception {
 		int numTrees = trees.length;
 		int numRatios, numCommonEdges;
 		int numDists = 0;
@@ -194,7 +196,7 @@ public static String getTimeStamp() {
 	}
 	
 	/*  Testing done Feb. 16 -, 2011. */
-	public static void test110216 (PhyloTree[] trees) {
+	public static void test110216 (PhyloTree[] trees) throws Exception {
 		PhyloTree t1, t2;
 		Geodesic geo;
 		

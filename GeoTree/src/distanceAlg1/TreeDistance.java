@@ -116,9 +116,10 @@ public class TreeDistance {
 	 *  reset is true if this is the first call to 
 	 *  resets hash table for divide and conquer
 	 *  XXX: how to deal with multifurcating trees
+	 * @throws Exception 
 	 * 
 	 */
-	public static Geodesic getGeodesic2(PhyloTree t1, PhyloTree t2, String algorithm, String geoFile) {
+	public static Geodesic getGeodesic2(PhyloTree t1, PhyloTree t2, String algorithm, String geoFile) throws Exception {
 		double leafContributionSquared = 0;
 		EdgeAttribute [] t1LeafEdgeAttribs = t1.getLeafEdgeAttribs();
 		EdgeAttribute [] t2LeafEdgeAttribs = t2.getLeafEdgeAttribs();
@@ -130,7 +131,7 @@ public class TreeDistance {
 		for(int i = 0; i < t1.getLeaf2NumMap().size(); i++ ) {
 			if ( !(t1.getLeaf2NumMap().get(i).equals(t2.getLeaf2NumMap().get(i)) ) ) {
 				System.out.println("Exiting: Leaves don't match for trees " + t1 + " and " + t2);
-				System.exit(1);
+				throw new Exception();
 			}
 			
 			leafContributionSquared = leafContributionSquared + Math.pow(EdgeAttribute.difference(t1LeafEdgeAttribs[i],t2LeafEdgeAttribs[i]).norm(), 2);
@@ -259,10 +260,10 @@ public class TreeDistance {
 	            }
 	        } catch (FileNotFoundException e) {
 	            System.out.println("Error opening or writing to " + geoFile + ": "+ e.getMessage());
-	            System.exit(1);
+	            throw new Exception();
 	        } catch (IOException e) {
 	        	System.out.println("Error opening or writing to " + geoFile + ": " + e.getMessage());
-	        	System.exit(1);
+	        	throw new Exception();
 	        }
 		}
 		return geo;
@@ -272,9 +273,10 @@ public class TreeDistance {
 
 	/** Stores subtrees with no common edges in the global variables aTreesNoCommonEdges (from t1)
 	 * and in bTreesNoCommonEdges (from t2).  Also returns a vector containing pairs of tree with no common edges.
+	 * @throws Exception 
 	 * 
 	 */
-	public static Vector<PhyloTree> splitOnCommonEdge(PhyloTree t1, PhyloTree t2) {
+	public static Vector<PhyloTree> splitOnCommonEdge(PhyloTree t1, PhyloTree t2) throws Exception {
 		Vector<PhyloTree> disjointTreePairs = new Vector<PhyloTree>();
 		int numEdges1 = t1.getEdges().size(); // number of edges in tree 1
 		int numEdges2 = t2.getEdges().size(); /// number of edges in tree 2
@@ -421,9 +423,10 @@ public class TreeDistance {
 	 *  Does not assume t1 and t2 have the same number of edges.
 	 *  reset is true if this is the first call to 
 	 *  XXX: how to deal with multifurcating trees
+	 * @throws Exception 
 	 * 
 	 */
-	public static Geodesic getGeodesicRecursive(PhyloTree t1, PhyloTree t2, String algorithm) {
+	public static Geodesic getGeodesicRecursive(PhyloTree t1, PhyloTree t2, String algorithm) throws Exception {
 		resetTreeDistanceState();  // reset the static variables in tree distance
 		
 		int numEdges1 = t1.getEdges().size(); // number of edges in tree 1
@@ -472,7 +475,7 @@ public class TreeDistance {
 			}
 			else {
 				System.out.println("" + algorithm + " is an invalid algorithm");
-				System.exit(0);
+				System.out.println("Finished");
 			}
 		}
 //		System.out.println("At least one common split; edges are " + commonEdges);
@@ -616,8 +619,9 @@ public class TreeDistance {
 	 * @param numTrees
 	 * @param algorithm
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, int numTrees, String algorithm, boolean doubleCheck) {
+	public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, int numTrees, String algorithm, boolean doubleCheck) throws Exception {
 		Date startTime;
 		Date endTime;
 		long[][] compTimes = new long[numTrees][numTrees];
@@ -644,7 +648,7 @@ public class TreeDistance {
 				// algorithm just returns a distance
 				else {
 					System.out.println("Unknown algorithm " + algorithm + "; exiting.");
-					System.exit(0);
+					System.out.println("Finished");
 				}
 			}
 		}
@@ -670,7 +674,7 @@ public class TreeDistance {
 					// algorithm just returns a distance
 					else {
 						System.out.println("Unknown algorithm " + algorithm + "; exiting.");
-						System.exit(0);
+						System.out.println("Finished");
 					}
 					if (truncate(geos[i][j].getDist(), 10) != truncate(geos[j][i].getDist(),10) ) {
 						System.out.println("***" + algorithm + " distances don't match for trees " + i + " and " + j + "***");
@@ -738,7 +742,7 @@ public class TreeDistance {
 		
 		if (m == null) {
 			System.out.println("The trees " + t1 + " and " + t2+ " do not have the same leaf labels.");
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		
 		getMaxPathSpacesAsRatioSeqs(m, new RatioSequence(), t1.getEdges(), t2.getEdges());
@@ -773,7 +777,7 @@ public class TreeDistance {
 		
 		if (m == null) {
 			System.out.println("The trees " + t1 + " and " + t2+ " do not have the same leaf labels.");
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		
 //		 the base case is when m contains all the same element
@@ -816,8 +820,9 @@ public class TreeDistance {
 	 * Doesn't assume the two trees contain the same number of edges.
 	 * XXX: edges in ratio sequences will be a bit wonky - might not be original edges
 	 * @return
+	 * @throws Exception 
 	 */ 
-	public static Geodesic getDivideAndConquerGeodesicNoCommonEdges(PhyloTree t1,PhyloTree t2) {
+	public static Geodesic getDivideAndConquerGeodesicNoCommonEdges(PhyloTree t1,PhyloTree t2) throws Exception {
 		Bipartition minEl;
 		PhyloTree newT1 = null;
 		Geodesic geo = null;
@@ -830,7 +835,7 @@ public class TreeDistance {
 		
 		if (m == null) {
 			System.out.println("The trees " + t1 + " and " + t2+ " do not have the same leaf labels.");
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		
 		// the base case is when m contains all the same element
@@ -911,8 +916,9 @@ public class TreeDistance {
 	 * Doesn't assume the two trees contain the same number of edges.
 	 * XXX: edges in ratio sequences will be a bit wonky - might not be original edges
 	 * @return
+	 * @throws Exception 
 	 */ 
-	public static RatioSequence getDivideAndConquerRSNoCommonEdges(PhyloTree t1,PhyloTree t2) {
+	public static RatioSequence getDivideAndConquerRSNoCommonEdges(PhyloTree t1,PhyloTree t2) throws Exception {
 		Bipartition minEl;
 		PhyloTree newT1 = null;
 		RatioSequence rs = null;
@@ -924,7 +930,7 @@ public class TreeDistance {
 		
 		if (m == null) {
 			System.out.println("The trees " + t1 + " and " + t2+ " do not have the same leaf labels.");
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		
 		// the base case is when m contains all the same element
@@ -1628,8 +1634,9 @@ public class TreeDistance {
 	 *  There can also be a ";" at the end of each line.
 	 * @param inFileName
 	 * @return
+	 * @throws Exception 
 	 */
-	public static PhyloTree[] readInTreesFromFile (String inFileName) {
+	public static PhyloTree[] readInTreesFromFile (String inFileName) throws Exception {
 		int numTrees =0;  // count the number of trees read in
 		Vector<String> stringTrees = new Vector<String>();
 		
@@ -1654,10 +1661,10 @@ public class TreeDistance {
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-            System.exit(1);
+            throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or reading from " + inFileName + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
         
         
@@ -1676,9 +1683,10 @@ public class TreeDistance {
 	
 	/** Open file fileName, reads in the trees, and outputs the distances computed by algorithm.
 	 *  Assumes first line of file is number of trees, and then one tree per line.
+	 * @throws Exception 
 	 *
 	 */
-	public static void computeAllInterTreeGeodesicsFromFile(String inFileName, String outFileName, String algorithm, boolean doubleCheck){
+	public static void computeAllInterTreeGeodesicsFromFile(String inFileName, String outFileName, String algorithm, boolean doubleCheck) throws Exception{
 
         
         PhyloTree[] trees = readInTreesFromFile(inFileName);
@@ -1686,7 +1694,7 @@ public class TreeDistance {
         
         if (numTrees < 2) {
         	System.out.println("Error:  tree file must contain at least 2 trees");
-        	System.exit(1);
+        	throw new Exception();
         }
         
         if (verbose >= 1 ) {
@@ -1717,10 +1725,10 @@ public class TreeDistance {
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
-            System.exit(1);
+            throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 	}
 	
@@ -1732,8 +1740,9 @@ public class TreeDistance {
 	 * @param numTrees
 	 * @param alg1
 	 * @param alg2
+	 * @throws Exception 
 	 */
-	public static void compareAlgorithms(PhyloTree[] trees, int numTrees, String alg1, String alg2) {
+	public static void compareAlgorithms(PhyloTree[] trees, int numTrees, String alg1, String alg2) throws Exception {
 
 		Date startTime, endTime;
 		long alg1Time, alg2Time;
@@ -1745,7 +1754,7 @@ public class TreeDistance {
 		// check input algorithms are valid
 		if (!(alg1.equals("divide") || alg1.equals("DivideAndConquerRS") || alg1.equals("ConjBothEnds") || alg1.equals("dynamic")) || !(alg2.equals("divide") || alg2.equals("ConjBothEnds") || alg2.equals("dynamic"))) {
 			System.out.println("Error:  either " + alg1 + " or " + alg2 + " is an invalid algorithm.");
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		for (int i = 0; i < numTrees; i++) {
@@ -1806,8 +1815,9 @@ public class TreeDistance {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		// variables maybe changed by program arguments
 		String algorithm = "dynamic";   //XXX make the defaults be constants
@@ -1824,7 +1834,7 @@ public class TreeDistance {
 
 		if (args.length < 1) {
 			TreeDistance.displayHelp();
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
@@ -1832,7 +1842,7 @@ public class TreeDistance {
 			if (!args[i].startsWith("-")) {
 				System.out.println("Invalid command line option");
 				displayHelp();
-				System.exit(0);
+				System.out.println("Finished");
 			}
 				
 			if (args[i].equals("--verbose")) {
@@ -1840,7 +1850,7 @@ public class TreeDistance {
 			}
 			else if (args[i].equals("--help")) {
 				displayHelp();
-				System.exit(0);
+				System.out.println("Finished");
 			}
 			//algorithm
 			else if (args[i].equals("-a")) {
@@ -1850,7 +1860,7 @@ public class TreeDistance {
 				}
 				else {
 					displayHelp();
-					System.exit(0);
+					System.out.println("Finished");
 				}
 			}
 			// output file
@@ -1861,7 +1871,7 @@ public class TreeDistance {
 				}
 				else {
 					displayHelp();
-					System.exit(0);
+					System.out.println("Finished");
 				}
 			}
 				
@@ -1878,7 +1888,7 @@ public class TreeDistance {
 					// display help
 					case 'h':
 						displayHelp();
-						System.exit(0);
+						System.out.println("Finished");
 						break;
 						
 					// normalize trees?
@@ -1904,7 +1914,7 @@ public class TreeDistance {
 					default:
 						System.out.println("Illegal command line option.\n");
 						displayHelp();
-						System.exit(0);
+						System.out.println("Finished");
 						break;
 					} // end switch
 				} // end for j
@@ -1914,12 +1924,12 @@ public class TreeDistance {
 		
 /*		if (permutationTest) {
 			PermutationTest.basicTest(treeFile, outFile, algorithm);
-			System.exit(0);		
+			System.out.println("Finished");		
 		}*/
 		
 		computeAllInterTreeGeodesicsFromFile(treeFile, outFile, algorithm, doubleCheck);
 		
-		System.exit(0);
+		System.out.println("Finished");
 
 	}
 

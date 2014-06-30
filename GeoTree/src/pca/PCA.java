@@ -36,8 +36,9 @@ public class PCA {
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Boolean rooted = true;   // default
 		Boolean orthants = false;   // default
 		String treeFile = null;
@@ -51,36 +52,36 @@ public class PCA {
 		/* Parse command line arguments */
 
 		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
+			System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(1); }
+			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
 			// specify algorithm
 			else if (args[i].equals("-a")) {
 				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
 			}
 			// epsilon, if desired
 			else if (args[i].equals("-e")) {
 				if (i < args.length -2) { epsilon = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); throw new Exception(); }
 			}
 			// other tree file, if desired
 			else if (args[i].equals("-f")) {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of second tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of second tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			// number of iterations, if desired
 			else if (args[i].equals("-i")) {
 				if (i < args.length -2) { numIter = Integer.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: number of iterations not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: number of iterations not specified"); displayHelp(); throw new Exception(); }
 			}
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); System.exit(1); }
+				else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
 			}	
 				
 			// all other arguments.  Note we can have -vn
@@ -88,12 +89,12 @@ public class PCA {
 				for (int j = 1; j<args[i].length(); j++) {
 					switch(args[i].charAt(j)) {						
 					// display help
-					case 'h': displayHelp(); System.exit(0); break;
+					case 'h': displayHelp(); System.out.println("Finished"); break;
 					// output number of orthants the geodesic goes through
 					case 'r': orthants = true; break;
 					case 'u': rooted = false; break;
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
+					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
 					} // end switch
 				} // end j loop (arguments without parameter)
 			} // end parsing an individual argument
@@ -112,7 +113,7 @@ public class PCA {
     		// XXX: Should check that numIter, etc make sense
 			// outfile is used a prefix for a group of output files.
     		projToRandomGeodesics(trees,orthants,numIter,epsilon,outfile);
-    		System.exit(0);
+    		System.out.println("Finished");
     	}
 		
 		// Algorithms that write to outfile.
@@ -137,7 +138,7 @@ public class PCA {
         	}
         	else {
 				System.out.println("Error:  no command specified.\n");
-				System.exit(1);
+				throw new Exception();
         	}
 		
         	if (outfileStream != null) {
@@ -145,13 +146,13 @@ public class PCA {
     		}
 		} catch (FileNotFoundException e) {
 			System.out.println("Error opening or writing to " +outfile + ": "+ e.getMessage());
-			System.exit(1);
+			throw new Exception();
 		} catch (IOException e) {
 			System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
-			System.exit(1);
+			throw new Exception();
 		}
 		
-		System.exit(0);		
+		System.out.println("Finished");		
 	}
 		
 		
@@ -167,8 +168,9 @@ public class PCA {
 	 * @param orthants
 	 * @param numIter
 	 * @param outFile
+	 * @throws Exception 
 	 */
-	public static void projToRandomGeodesics(PhyloTree[] trees, Boolean orthants, int numIter, double epsilon,String outFile) {
+	public static void projToRandomGeodesics(PhyloTree[] trees, Boolean orthants, int numIter, double epsilon,String outFile) throws Exception {
 		XORShiftRandom r = new XORShiftRandom();
 		
 		for (int i = 0; i < numIter; i++) {
@@ -215,11 +217,11 @@ public class PCA {
 			} 
 			catch (FileNotFoundException e) {
 				System.out.println("Error opening or writing to " + outFile + ": "+ e.getMessage());
-	    		System.exit(1);
+	    		throw new Exception();
 			} 
 			catch (IOException e) {
 				System.out.println("Error opening or writing to " + outFile + ": " + e.getMessage());
-				System.exit(1);
+				throw new Exception();
 			} // end try/catch
 		} // end for
 	}	// end method
@@ -234,8 +236,9 @@ public class PCA {
 	 * @param trees
 	 * @param epsilon
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double scoreProjsToGeodesic (Geodesic geo, PhyloTree[] trees, double epsilon) {
+	public static double scoreProjsToGeodesic (Geodesic geo, PhyloTree[] trees, double epsilon) throws Exception {
 		double score = 0; 
 
 		for (PhyloTree t : trees ) {
@@ -253,8 +256,9 @@ public class PCA {
 	 * @param trees
 	 * @param epsilon
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double[] getProjIndices (Geodesic geo, PhyloTree[] trees, double epsilon) {
+	public static double[] getProjIndices (Geodesic geo, PhyloTree[] trees, double epsilon) throws Exception {
 		double[] indices = new double[trees.length]; 
 		
 		// for each tree, projection onto geo and store index

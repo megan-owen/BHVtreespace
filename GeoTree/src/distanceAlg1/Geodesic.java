@@ -238,8 +238,9 @@ public class Geodesic {
 	 * 
 	 * @param position
 	 * @return
+	 * @throws Exception 
 	 */
-	public PhyloTree getTreeAt(double position, Vector<String> leaf2NumMap, Boolean isRooted) {
+	public PhyloTree getTreeAt(double position, Vector<String> leaf2NumMap, Boolean isRooted) throws Exception {
 		int lowerRatioIndex = -2;	// the index of the ratio containing all f edges in the tree we want
 									// i.e. the index of the ratio with time < position, but such that the next ratio has time >= position 
 									// if position is in the starting orthant, we don't want any f edges.
@@ -353,8 +354,9 @@ public class Geodesic {
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
- 	public Vector<PhyloTreeEdge> getCommonEdges(double position) {	
+ 	public Vector<PhyloTreeEdge> getCommonEdges(double position) throws Exception {	
 		EdgeAttribute commonEdgeAttribute;
 		Bipartition commonSplit;
 		
@@ -362,7 +364,7 @@ public class Geodesic {
 		
 		if (position < 0 || position > 1) {
 			System.err.println("Error:  position " + position + " must be between 0 and 1");
-			System.exit(1);
+			throw new Exception();
 		}
 				
 		for (int i = 0; i < commonEdges.size(); i++) {
@@ -401,8 +403,9 @@ public class Geodesic {
 	/**  Returns a vector of the trees in the intersection of the geodesic with all boundary orthants.
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTree> getBoundaryTrees(PhyloTree t1, PhyloTree t2) {
+	public static Vector<PhyloTree> getBoundaryTrees(PhyloTree t1, PhyloTree t2) throws Exception {
 		Vector<PhyloTree> boundaryTrees = new Vector<PhyloTree>();
 		
 		Geodesic geo = PolyMain.getGeodesic(t1, t2, null);
@@ -416,8 +419,9 @@ public class Geodesic {
 	/** Returns the 4 angles formed by the geodesic end-points
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public static double[] getEndpointAngles(Geodesic g1, Geodesic gA, Vector<String> leaf2NumMap, Boolean isRooted) {
+	public static double[] getEndpointAngles(Geodesic g1, Geodesic gA, Vector<String> leaf2NumMap, Boolean isRooted) throws Exception {
 		//Vector Trees for g1 near index 0 and 1
 		 PhyloTree t1 = g1.getEdgeVector(0,leaf2NumMap, isRooted);
 		 PhyloTree t2 = g1.getEdgeVector(1,leaf2NumMap, isRooted);
@@ -435,8 +439,9 @@ public class Geodesic {
 	 * @param Side = 0 or 1
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public PhyloTree getEdgeVector(int side, Vector<String> leaf2NumMap, Boolean isRooted) {
+	public PhyloTree getEdgeVector(int side, Vector<String> leaf2NumMap, Boolean isRooted) throws Exception {
 		//From Both Sides find nearest Boundary Tree
 		PhyloTree t1 = this.getTreeAt(0, leaf2NumMap, isRooted);
 		PhyloTree t2 = this.getTreeAt(1, leaf2NumMap, isRooted);
@@ -464,9 +469,10 @@ public class Geodesic {
 	 * segment in each othant.  Does not include the starting or ending tree/orthant.
 	 *
 	 * @return
+	 * @throws Exception 
 	 * 
 	 */
-	public ArrayList<PhyloTree> getMidOrthantTrees(Vector<String> leaf2NumMap, Boolean isRooted) {
+	public ArrayList<PhyloTree> getMidOrthantTrees(Vector<String> leaf2NumMap, Boolean isRooted) throws Exception {
 		ArrayList<PhyloTree> midTrees = new ArrayList<PhyloTree>();
 		RatioSequence minAscRS = this.getRS().getAscRSWithMinDist();
 		

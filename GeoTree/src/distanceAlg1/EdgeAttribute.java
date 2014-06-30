@@ -33,7 +33,7 @@ public class EdgeAttribute {
 		this.vect = vect;
 	}
 	
-	public EdgeAttribute(String s) {
+	public EdgeAttribute(String s) throws Exception {
 	try {	
 		// if s is a vector
 		if ((s.charAt(0) == '[')&&(s.charAt(s.length() - 1) == ']')) {
@@ -56,7 +56,7 @@ public class EdgeAttribute {
 	}
 	catch (NumberFormatException e) {
 		System.err.println("Error creating new edge attribute: input string does not have double where expected or bracket problem: "+ e.getMessage());
-		System.exit(1);
+		throw new Exception();
 	}
 	}
 	
@@ -143,8 +143,9 @@ public class EdgeAttribute {
 	 * @param a1
 	 * @param a2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static EdgeAttribute difference(EdgeAttribute a1, EdgeAttribute a2) {
+	public static EdgeAttribute difference(EdgeAttribute a1, EdgeAttribute a2) throws Exception {
 		if (a1 == null && a2 == null) {
 			System.out.println("Calculating difference between two null edge attributes; returning null");
 			return null;
@@ -168,7 +169,7 @@ public class EdgeAttribute {
 		
 		if (a1.vect.length != a2.vect.length) {
 			System.err.println("Error:  vectors different lengths when computing difference of EdgeAttributes " + a1 + " and " + a2);
-			System.exit(1);
+			throw new Exception();
 		}
 		int diffLength = a1.vect.length;
 		
@@ -186,8 +187,9 @@ public class EdgeAttribute {
 	 * 
 	 * @param a1
 	 * @param a2
+	 * @throws Exception 
 	 */
-	public static EdgeAttribute add(EdgeAttribute a1, EdgeAttribute a2) {
+	public static EdgeAttribute add(EdgeAttribute a1, EdgeAttribute a2) throws Exception {
 		if (a1.vect == null) {
 			return a2;
 		}
@@ -197,7 +199,7 @@ public class EdgeAttribute {
 		
 		if (a1.vect.length != a2.vect.length) {
 			System.err.println("Error:  vectors different lengths when adding EdgeAttributes " + a1 + " and " + a2);
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		
@@ -218,15 +220,16 @@ public class EdgeAttribute {
 	 * 
 	 * @param a1
 	 * @param a2
+	 * @throws Exception 
 	 */
-	public static EdgeAttribute product(EdgeAttribute a1, EdgeAttribute a2) {
+	public static EdgeAttribute product(EdgeAttribute a1, EdgeAttribute a2) throws Exception {
 		if (a1.vect == null || a2.vect == null) {
 			return null;
 		}
 		
 		if (a1.vect.length != a2.vect.length) {
 			System.err.println("Error:  vectors different lengths when adding EdgeAttributes " + a1 + " and " + a2);
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		//Get Length
@@ -262,8 +265,9 @@ public class EdgeAttribute {
 	 * @param target
 	 * @param position
 	 * @return
+	 * @throws Exception 
 	 */
-	public static EdgeAttribute weightedPairAverage(EdgeAttribute start, EdgeAttribute target, double position) {
+	public static EdgeAttribute weightedPairAverage(EdgeAttribute start, EdgeAttribute target, double position) throws Exception {
 		if (start == null && target == null) {
 			System.out.println("Calculating point between two null edge attributes; returning null");
 			return null;
@@ -279,7 +283,7 @@ public class EdgeAttribute {
 		
 		if (start.vect.length != target.vect.length) {
 			System.err.println("Error calculating point between edge attributes.  Edge attributes are different lenghts: " + start + " and " + target );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		if (position < 0 || position > 1) {
@@ -334,11 +338,12 @@ public class EdgeAttribute {
 	 *   with all entries 0.
 	 * @param length
 	 * @return
+	 * @throws Exception 
 	 */
-	public static EdgeAttribute zeroAttribute(int size) {
+	public static EdgeAttribute zeroAttribute(int size) throws Exception {
 		if (size < 1) {
 			System.err.println("Error creating zero edge attribute of size " + size + "; invalid size");
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		EdgeAttribute zero = new EdgeAttribute(new double[size]);

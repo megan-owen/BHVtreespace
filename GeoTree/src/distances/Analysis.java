@@ -133,8 +133,9 @@ public class Analysis {
 	 * @param numRep
 	 * @param numIter
 	 * @return
+	 * @throws Exception 
 	 */
-	public static PhyloTree[] bootstrap(PhyloTree[] trees, int numRep, long numIter) {
+	public static PhyloTree[] bootstrap(PhyloTree[] trees, int numRep, long numIter) throws Exception {
 		PhyloTree[] centroids = new PhyloTree[numRep];
 		int numTrees = trees.length;
 		
@@ -197,7 +198,7 @@ public class Analysis {
 	}
 	
 
-	public static void geodesicStats(PhyloTree[] trees) {
+	public static void geodesicStats(PhyloTree[] trees) throws Exception {
 		int numTrees = trees.length;
 		double averageDist = 0;
 		int numDists = 0;
@@ -250,8 +251,9 @@ public class Analysis {
 	 * 
 	 * @param trees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static PhyloTree getStarTree(PhyloTree[] trees) {
+	public static PhyloTree getStarTree(PhyloTree[] trees) throws Exception {
 		if (trees == null) {
 			System.err.println("Warning:  tree set null when getting star tree; returning null");
 			return null;
@@ -285,7 +287,7 @@ public class Analysis {
 	}
 	
 	
-	public static double[] distancesToStarTree(PhyloTree[] trees) {
+	public static double[] distancesToStarTree(PhyloTree[] trees) throws Exception {
 		int numTrees = trees.length;
 		
 		PhyloTree star = getStarTree(trees);
@@ -300,7 +302,7 @@ public class Analysis {
 	
 	
 	
-	public static void printDistancesToFile(double[][] dist, double[] specialDist, String fileName) {
+	public static void printDistancesToFile(double[][] dist, double[] specialDist, String fileName) throws Exception {
 		int numTrees = dist.length;
 		
 		PrintWriter outputStream = null;
@@ -326,10 +328,10 @@ public class Analysis {
     		}
         } catch (FileNotFoundException e) {
         	System.out.println("Error opening or writing to " +fileName + ": "+ e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         } catch (IOException e) {
         	System.out.println("Error opening or writing to " + fileName + ": " + e.getMessage());
-        	System.exit(1);
+        	throw new Exception();
         }
 	}
 	
@@ -366,7 +368,7 @@ public class Analysis {
 	}
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String outfile = "output.txt";
 		String treeFile = "";
 		String otherTreeFile = null;
@@ -379,31 +381,31 @@ public class Analysis {
 		/* Parse command line arguments */
 
 		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
+			System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(1); }
+			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
 			// specify algorithm
 			else if (args[i].equals("-a")) {
 				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
 			}
 			// epsilon, if desired
 			else if (args[i].equals("-e")) {
 				if (i < args.length -2) { epsilon = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); throw new Exception(); }
 			}
 			// other tree file, if desired
 			else if (args[i].equals("-f")) {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); System.exit(1); }
+				else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
 			}	
 			// sample point on geodesic
 			else if (args[i].equals("-s")) {
@@ -417,7 +419,7 @@ public class Analysis {
 					case 'h': displayHelp(); System.exit(0); break;
 					case 'u': rooted = false; break;
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
+					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
 					} // end switch
 				} // end j loop (arguments without parameter)
 			} // end parsing an individual argument
@@ -443,7 +445,7 @@ public class Analysis {
 			// treeFile contains the list of trees to compute sum of square distance to
 			if (otherTreeFile == null) {
 				System.out.println("Error:  second tree file not specified");
-				System.exit(1);
+				throw new Exception();
 			}
 				
 			double ssd = CentroidMain.sumOfSquareDist(otherTrees[0], trees);
@@ -463,7 +465,7 @@ public class Analysis {
     			// otherTreeFile contains one list of trees to compare against the trees in treeFile
     			if (otherTreeFile == null) {
     				System.out.println("Error:  second tree file not specified");
-    				System.exit(1);
+    				throw new Exception();
     			}
     			
     			computeAllGeodesicsBtwLists(trees,otherTrees,outfile);
@@ -518,11 +520,11 @@ public class Analysis {
     		else if (algorithm.equals("sample_point")) {
     			if ((samplePt < 0) || (samplePt > 1)) {
     				System.err.println("Error: sample point is either missing or not between 0 and 1");
-    				System.exit(1);
+    				throw new Exception();
     			}
     			if (trees.length < 2) {
     				System.err.println("Error: need two trees in treefile");
-    				System.exit(1);
+    				throw new Exception();
     			}
     			PhyloTree sample = (getGeodesic(trees[0],trees[1],null)).getTreeAt(samplePt,trees[0].getLeaf2NumMap(),rooted); 
     			Presentation.printStringToFile(sample.getNewick(true), outfile);
@@ -547,7 +549,7 @@ public class Analysis {
     		}
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
-    			System.exit(1);
+    			throw new Exception();
     		}
     		
     		if (outfileStream != null) {
@@ -555,10 +557,10 @@ public class Analysis {
     		}
 		} catch (FileNotFoundException e) {
 			System.out.println("Error opening or writing to " +outfile + ": "+ e.getMessage());
-			System.exit(1);
+			throw new Exception();
 		} catch (IOException e) {
 			System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		System.exit(0);
@@ -768,8 +770,9 @@ public class Analysis {
 	 * @param otherTrees
 	 * @param rooted
 	 * @param outfile
+	 * @throws Exception 
 	 */
-	public static void computeAllGeodesicsBtwLists(PhyloTree[] trees,PhyloTree[] otherTrees,String outFileName) {
+	public static void computeAllGeodesicsBtwLists(PhyloTree[] trees,PhyloTree[] otherTrees,String outFileName) throws Exception {
 		int numTrees = trees.length;
 		int numOtherTrees = otherTrees.length;
 	    
@@ -793,10 +796,10 @@ public class Analysis {
 	        }
 	    } catch (FileNotFoundException e) {
 	        System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
-	        System.exit(1);
+	        throw new Exception();
 	    } catch (IOException e) {
 	    	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
-	    	System.exit(1);
+	    	throw new Exception();
 	    }
 	}
 	
@@ -807,11 +810,12 @@ public class Analysis {
 	 * @param trees
 	 * @param otherTrees
 	 * @param outFileName
+	 * @throws Exception 
 	 */
-	public static void projectTreeToGeo(PhyloTree[] trees, PhyloTree[] otherTrees, double epsilon, String outFileName) {
+	public static void projectTreeToGeo(PhyloTree[] trees, PhyloTree[] otherTrees, double epsilon, String outFileName) throws Exception {
 		if ((trees.length < 2) || (otherTrees.length < 1)) {
 			System.out.println("Error: not enough trees in input files");
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		if (epsilon <= 0) {
@@ -838,10 +842,10 @@ public class Analysis {
 	        }
 	    } catch (FileNotFoundException e) {
 	        System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
-	        System.exit(1);
+	        throw new Exception();
 	    } catch (IOException e) {
 	    	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
-	    	System.exit(1);
+	    	throw new Exception();
 	    }
 	}
 
@@ -850,9 +854,10 @@ public class Analysis {
 	 *  with the trees in goodTrees (considered individually).
 	 * If goodTrees contains only one tree (i.e. an original tree), then this prints 
 	 * information about which splits in the trees in otherTrees are incompatible with it.
+	 * @throws Exception 
 	 * 
 	 */
-	public static void printIncompatibleSplits(PhyloTree[] goodTrees, PhyloTree[] otherTrees, String outFilename, Boolean paired) {
+	public static void printIncompatibleSplits(PhyloTree[] goodTrees, PhyloTree[] otherTrees, String outFilename, Boolean paired) throws Exception {
 		String output = "";
 		Vector<String> leaf2NumMap = goodTrees[0].getLeaf2NumMap();
 		int startIndex, endIndex;
@@ -919,10 +924,10 @@ public class Analysis {
 	        }
 	    } catch (FileNotFoundException e) {
 	        System.out.println("Error opening or writing to " + outFilename + ": "+ e.getMessage());
-	        System.exit(1);
+	        throw new Exception();
 	    } catch (IOException e) {
 	        System.out.println("Error opening or writing to " + outFilename + ": " + e.getMessage());
-	        System.exit(1);
+	        throw new Exception();
 	    }
 	}
 		
@@ -968,7 +973,7 @@ public class Analysis {
 	}
 
 	//Gets 4 angles to print out
-	public static void endRayAngles(PhyloTree[] trees, PhyloTree[] otherTrees, PrintWriter outFileStream) {
+	public static void endRayAngles(PhyloTree[] trees, PhyloTree[] otherTrees, PrintWriter outFileStream) throws Exception {
 		Geodesic g1 = getGeodesic(trees[0], trees[1],null);
 		Geodesic gA = getGeodesic(otherTrees[0], otherTrees[1], null);
 		

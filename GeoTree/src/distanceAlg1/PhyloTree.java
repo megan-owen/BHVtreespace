@@ -102,8 +102,9 @@ public class PhyloTree {
 	 * TODO:  insert check for same vertex (so can't have two of the same vertices)
 	 * TODO:  Do we want to keep the length of any root vertex?
 	 * @param t representation of a tree in Newick standard.
+	 * @throws Exception 
 	 */
-	public PhyloTree(String t, boolean rooted) {
+	public PhyloTree(String t, boolean rooted) throws Exception {
 		int leafNum = 0;
 		this.rooted = rooted;
 
@@ -195,7 +196,7 @@ try{  // for stringIndexOutOfBoundsException
 	} 	//try
 	catch(StringIndexOutOfBoundsException e) {
 		System.err.println("Error reading in tree:  invalid Newick string: (" + t + ");");
-		System.exit(1);
+		throw new Exception();
 	}
 	
 	// if tree is really unrooted, reroot so that the last leaf in leaf2NumMap is the root
@@ -382,8 +383,9 @@ try{  // for stringIndexOutOfBoundsException
 	/** Returns sum of product of the common edges
 	 * 
 	 * @return
+	 * @throws Exception 
 	 **/
-	public double dotProduct(PhyloTree tree) {
+	public double dotProduct(PhyloTree tree) throws Exception {
 		// if the two trees do not have the same leaf2NumMap
 		if (!(this.getLeaf2NumMap().equals(tree.getLeaf2NumMap()))){
 			return 0;
@@ -405,8 +407,9 @@ try{  // for stringIndexOutOfBoundsException
 	/** Returns the angle (likely in radians) of the trees
 	 * 
 	 * @return
+	 * @throws Exception 
 	 * */
-	public double angleFormedWith(PhyloTree tree) {
+	public double angleFormedWith(PhyloTree tree) throws Exception {
 		return Math.acos(this.dotProduct(tree) / (this.getDistanceFromOriginNoLeaves()*tree.getDistanceFromOriginNoLeaves())); 
 	} 	
 	
@@ -478,8 +481,9 @@ try{  // for stringIndexOutOfBoundsException
 	 * @param t1
 	 * @param t2
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTreeEdge> getCommonEdges(PhyloTree t1, PhyloTree t2) {	
+	public static Vector<PhyloTreeEdge> getCommonEdges(PhyloTree t1, PhyloTree t2) throws Exception {	
 		Vector<PhyloTreeEdge> commonEdges = new Vector<PhyloTreeEdge>();
 		
 		// if the two trees do not have the same leaf2NumMap
@@ -487,7 +491,7 @@ try{  // for stringIndexOutOfBoundsException
 			System.out.println("Error: the two trees do not have the same leaves!");
 			System.out.println("First tree's leaves are " + t1.getLeaf2NumMap() );
 			System.out.println("Second tree's leaves are " + t2.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		for (PhyloTreeEdge e1 : t1.edges) {
@@ -516,8 +520,9 @@ try{  // for stringIndexOutOfBoundsException
 	 * 
 	 * @param t
 	 * @return
+	 * @throws Exception 
 	 */
-	public Vector<PhyloTreeEdge> getEdgesIncompatibleWith(PhyloTree t) {
+	public Vector<PhyloTreeEdge> getEdgesIncompatibleWith(PhyloTree t) throws Exception {
 		Vector<PhyloTreeEdge> incompEdges = new Vector<PhyloTreeEdge>();
 		
 		// if the two trees do not have the same leaf2NumMap
@@ -525,7 +530,7 @@ try{  // for stringIndexOutOfBoundsException
 			System.out.println("Error: the two trees do not have the same leaves!");
 			System.out.println("First tree's leaves are " + this.getLeaf2NumMap() );
 			System.out.println("Second tree's leaves are " + t.getLeaf2NumMap() );
-			System.exit(1);
+			throw new Exception();
 		}		
 		
 		for (PhyloTreeEdge e : edges) {
@@ -538,7 +543,7 @@ try{  // for stringIndexOutOfBoundsException
 	
 	
 	
-	public void permuteLeaves() {
+	public void permuteLeaves() throws Exception {
 		int numLeaves = leaf2NumMap.size();
 		ArrayList<Integer> permutation = new ArrayList<Integer>();
 		
@@ -554,11 +559,12 @@ try{  // for stringIndexOutOfBoundsException
 	/** Permutes the leaves of this tree, as specified by the permutation array.
 	 * Specicially leaf i is changed to be in position permutation(i).
 	 * @param permutation
+	 * @throws Exception 
 	 */
-	public void permuteLeaves(Integer[] permutation) {
+	public void permuteLeaves(Integer[] permutation) throws Exception {
 		if (permutation.length != leaf2NumMap.size()) {
 			System.err.println("Error: size of permutation map does not match the number of leaves");
-			System.exit(1);
+			throw new Exception();
 		}
 		int numEdges = this.numEdges();
 		
@@ -979,8 +985,9 @@ try{  // for stringIndexOutOfBoundsException
 	 * Algorithm ends when distance between left and right is < epsilon
 	 * @param geo
 	 * @return
+	 * @throws Exception 
 	 */
-	public double projectToGeoIndex(Geodesic geo, double epsilon) {
+	public double projectToGeoIndex(Geodesic geo, double epsilon) throws Exception {
 		PhyloTree t1 = geo.getTreeAt(0,leaf2NumMap,rooted);
 		PhyloTree t2 = geo.getTreeAt(1,leaf2NumMap,rooted);
 		
@@ -1053,8 +1060,9 @@ try{  // for stringIndexOutOfBoundsException
 	 * Algorithm ends when distance between left and right is < epsilon
 	 * @param geo
 	 * @return
+	 * @throws Exception 
 	 */
-	public PhyloTree projectToGeo(Geodesic geo, double epsilon) {
+	public PhyloTree projectToGeo(Geodesic geo, double epsilon) throws Exception {
 		return geo.getTreeAt(this.projectToGeoIndex(geo,epsilon), leaf2NumMap, rooted);
 	}
 	
@@ -1084,8 +1092,9 @@ try{  // for stringIndexOutOfBoundsException
 	 *   TODO:  For now, this tree must be binary.
 	 * @param t
 	 * @return
+	 * @throws Exception 
 	 */
-	public double[] getDirectionTo(PhyloTree t) {
+	public double[] getDirectionTo(PhyloTree t) throws Exception {
 		int numCoords = numEdges() + numLeaves();
 		int dimAttrib = this.getDimAttribs();
 		double[] coords = new double[numCoords*dimAttrib];
@@ -1094,7 +1103,7 @@ try{  // for stringIndexOutOfBoundsException
 		// If not, return error.
 		if (!this.isBinary()) {
 			System.out.println("Error: cannot compute the direction to a non-binary tree " + getNewick(true));
-			System.exit(1);
+			throw new Exception();
 		}
 		
 		// if tree t doesn't have the same topology, get the boundary tree
@@ -1154,8 +1163,9 @@ try{  // for stringIndexOutOfBoundsException
 	 * 
 	 * @param t
 	 * @return
+	 * @throws Exception 
 	 */
-	public double[] getLogMap(PhyloTree t) {
+	public double[] getLogMap(PhyloTree t) throws Exception {
 		// get the geodesic distance between the trees
 		double geoDist = calcGeoDist(this,t);
 			

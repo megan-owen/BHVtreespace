@@ -2,7 +2,9 @@ package compGeo;
 
 import polyAlg.PolyMain;
 import distanceAlg1.PhyloTree;
+
 import java.util.*;
+
 import distanceAlg1.Geodesic;
 
 public class CompGeoMain {
@@ -40,8 +42,9 @@ public class CompGeoMain {
 	 *  Each tree in the boundary should only appear once.
 	 * @param inputTrees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTree> getBoundaryTrees (PhyloTree[] inputTrees) {
+	public static Vector<PhyloTree> getBoundaryTrees (PhyloTree[] inputTrees) throws Exception {
 		Vector<PhyloTree> boundaryTrees = new Vector<PhyloTree>();
 		
 		for (int i = 0; i < inputTrees.length; i++) {
@@ -60,8 +63,9 @@ public class CompGeoMain {
 	 * 
 	 * @param inputTrees
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTree> getBoundaryTrees (Vector<PhyloTree> inputTrees) {
+	public static Vector<PhyloTree> getBoundaryTrees (Vector<PhyloTree> inputTrees) throws Exception {
 		Vector<PhyloTree> boundaryTrees = new Vector<PhyloTree>();
 		
 		for (int i = 0; i < inputTrees.size(); i++) {
@@ -81,8 +85,9 @@ public class CompGeoMain {
 	 * @param inputTrees
 	 * @param numReps
 	 * @return
+	 * @throws Exception 
 	 */
-	public static Vector<PhyloTree> getExtremalTrees(Vector<PhyloTree> inputTrees, int numReps ) {
+	public static Vector<PhyloTree> getExtremalTrees(Vector<PhyloTree> inputTrees, int numReps ) throws Exception {
 		Vector<PhyloTree> boundaryTrees = inputTrees;
 		Vector<PhyloTree> newBoundaryTrees;
 		
@@ -133,8 +138,9 @@ public class CompGeoMain {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String algorithm = "";
 		String otherTreeFile = null;
 		String treeFile;
@@ -147,36 +153,36 @@ public class CompGeoMain {
 		/* Parse command line arguments */
 
 		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); System.exit(1);
+			System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); System.exit(1); }
+			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
 			// other tree file, if desired
 			else if (args[i].equals("-a")) {
 				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
 			}
 			// other tree file, if desired
 			else if (args[i].equals("-f")) {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(1); }
+				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); throw new Exception(); }
 			}
 			// number of iterations
 			else if (args[i].equals("-i")) {
 				if (i < args.length -2) { numIter = Integer.valueOf(args[i+1]); i++; }
-				else { displayHelp(); System.exit(1); }
+				else { displayHelp(); throw new Exception(); }
 			}
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); System.exit(1); }
+				else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
 			}
 			// string, if needed
 			else if (args[i].equals("-s")) {
 				if (i < args.length -2) { s = args[i+1]; i++; }
-				else { System.err.println("Error: string not specified");  displayHelp(); System.exit(1); }
+				else { System.err.println("Error: string not specified");  displayHelp(); throw new Exception(); }
 			}
 				
 			// all other arguments.  Note we can have -vn
@@ -184,10 +190,10 @@ public class CompGeoMain {
 				for (int j = 1; j<args[i].length(); j++) {
 					switch(args[i].charAt(j)) {						
 					// display help
-					case 'h': displayHelp(); System.exit(0); break;
+					case 'h': displayHelp(); System.out.println("Finished"); break;
 					case 'u': rooted = false; break;
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
+					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
 					} // end switch
 				} // end j loop (arguments without parameter)
 			} // end parsing an individual argument

@@ -24,8 +24,9 @@ public class Experiments {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		// variables maybe changed by program arguments
 		String treeFile = "";
@@ -37,7 +38,7 @@ public class Experiments {
 
 		if (args.length < 1) {
 			TreeDistance.displayHelp();
-			System.exit(0);
+			System.out.println("Finished");
 		}
 		treeFile = args[args.length-1];
 		for (int i = 0; i < args.length - 1; i++) {
@@ -45,7 +46,7 @@ public class Experiments {
 			if (!args[i].startsWith("-")) {
 				System.out.println("Invalid command line option");
 				displayHelp();
-				System.exit(0);
+				System.out.println("Finished");
 			}
 				
 			if (args[i].equals("--verbose")) {
@@ -53,7 +54,7 @@ public class Experiments {
 			}
 			else if (args[i].equals("--help")) {
 				displayHelp();
-				System.exit(0);
+				System.out.println("Finished");
 			}
 			// output file
 			else if (args[i].equals("-o")) {
@@ -63,7 +64,7 @@ public class Experiments {
 				}
 				else {
 					displayHelp();
-					System.exit(0);
+					System.out.println("Finished");
 				}
 			}
 			// which experiment
@@ -75,7 +76,7 @@ public class Experiments {
 				else {
 					System.out.println("Problem here");
 					displayHelp();
-					System.exit(0);
+					System.out.println("Finished");
 				}
 			}
 				
@@ -88,7 +89,7 @@ public class Experiments {
 					// display help
 					case 'h':
 						displayHelp();
-						System.exit(0);
+						System.out.println("Finished");
 						break;
 						
 					// normalize trees?
@@ -114,7 +115,7 @@ public class Experiments {
 					default:
 						System.out.println("Illegal command line option.\n");
 						displayHelp();
-						System.exit(0);
+						System.out.println("Finished");
 						break;
 					} // end switch
 				} // end for j
@@ -131,18 +132,19 @@ public class Experiments {
 			System.out.println(experiment + " is an invalid experiment");
 			displayHelp();
 		}
-		System.exit(0);
+		System.out.println("Finished");
 
 	}
 	
 /** Computes the combinatorial type of all path space geodesics.
+ * @throws Exception 
  * 
  */
-public static void pathSpaceGeoCompare(PhyloTree[] trees, String outFile) {
+public static void pathSpaceGeoCompare(PhyloTree[] trees, String outFile) throws Exception {
 	// Can only handle 2 trees.  Ignore the rest.
 	if (trees.length <2) {
 		System.out.println("Need at least 2 trees");
-		System.exit(1);
+		throw new Exception();
 	}
 
 	PhyloTree t1 = trees[0];
@@ -153,7 +155,7 @@ public static void pathSpaceGeoCompare(PhyloTree[] trees, String outFile) {
 		
 	if (commonEdges.size() > 0) {
 		System.out.println("Trees have common split: cannot run pathSpaceGeoCompare");
-		System.exit(1);
+		throw new Exception();
 	}
 		
 	System.out.println("Starting tree: " + t1.getNewick(true));
@@ -173,7 +175,7 @@ public static void pathSpaceGeoCompare(PhyloTree[] trees, String outFile) {
 	
 	if (m == null) {
 		System.out.println("The trees " + t1 + " and " + t2+ " do not have the same leaf labels.");
-		System.exit(0);
+		System.out.println("Finished");
 	}
 	
 //	 the base case is when m contains all the same element

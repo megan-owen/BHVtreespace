@@ -33,7 +33,7 @@ public class Bipartition implements Cloneable {
 		this.partition = edge;
 	}
 	
-	public Bipartition(String s) {
+	public Bipartition(String s) throws Exception {
 		partition = new BitSet();
 		
 		for (int i = 0; i < s.length(); i++)
@@ -42,7 +42,7 @@ public class Bipartition implements Cloneable {
 			}
 			else if (s.charAt(i) != '0') {
 				System.err.println("Error creating bipartition: input string " + s + " should only contain 0s and 1s");
-				System.exit(1);
+				throw new Exception();
 		}
 	}
 	
