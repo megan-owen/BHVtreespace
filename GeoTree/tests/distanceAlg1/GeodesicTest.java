@@ -49,7 +49,7 @@ public class GeodesicTest {
 		multi = new PhyloTree("((a:1,b:1,c:1):3,f:1,(d:1,e:1):1);",false);
 		
 		// same topology as t1
-		s1 = new PhyloTree("(a:[1 1 1],(b:[1 1 1 ],c:[1 1 1]):[0.3 -3.7778 -4],(e:[1 1 1],(d:[10 -0.6 2],f:[0.22 0 0]):[1 1 1]):[2 2 2]);",false); 
+		s1 = new PhyloTree("(a:[1 1 1],(b:[1 1 1],c:[1 1 1]):[0.3 -3.7778 -4],(e:[1 1 1],(d:[10 -0.6 2],f:[0.22 0 0]):[1 1 1]):[2 2 2]);",false); 
 		// same topology as t2
 		s2 = new PhyloTree("((a:[1 1 1],b:[2.44 2.44 2.44]):[1 -1 1],(c:[1 1 1],d:[1 0 -1]):[1 1 1],(e:[1 1 1],f:[1 1 1]):[2 2 2]);",false);
 		// same topology as multi

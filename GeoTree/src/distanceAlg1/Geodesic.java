@@ -440,6 +440,16 @@ public class Geodesic {
 		//From Both Sides find nearest Boundary Tree
 		PhyloTree t1 = this.getTreeAt(0, leaf2NumMap, isRooted);
 		PhyloTree t2 = this.getTreeAt(1, leaf2NumMap, isRooted);
+		
+		//If they have the same topology then there is no in between trees
+		if (t1.hasSameTopology(t2)) {
+			if (side>.5) {
+				return t2;
+			} else {
+				return t1;
+			}
+		}
+		//Else there are in between trees 
 		Vector<PhyloTree> trees = Geodesic.getBoundaryTrees(t1,t2);
 		
 		//Essentially make tA and tB move to the origin to get vector of t1 and t2
