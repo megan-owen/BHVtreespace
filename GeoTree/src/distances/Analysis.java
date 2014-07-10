@@ -24,10 +24,6 @@ import centroid.*;
 public class Analysis {
 	
 	public static int verbose = 0;
-
-	
-	
-	
 	
 	/**  Returns the average geodesic distance for all the geodesics in geos.
 	 * 
@@ -549,6 +545,11 @@ public class Analysis {
     		else if (algorithm.equals("log_map")) {
     			computeAllLogMaps(trees,otherTrees[0],outfileStream);
     		}
+    		// returns 4 lines to the output file corresponding to the 4 angles
+    		else if (algorithm.equals("endray_angles")) {
+    			endRayAngles(trees, otherTrees, outfileStream);
+    			System.exit(0);
+    		}
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
     			System.exit(1);
@@ -596,6 +597,7 @@ public class Analysis {
 		System.out.println("\t topology_count \t returns a file containing information about the topologies in treefile");
 		System.out.println("\t split_count \t returns a file containing information about the splits appearing in the trees in treefile");
 		System.out.println("\t log_map \t returns a file containing the log map coordinates of the trees in treefile relative to the first tree in otherTreeFile (centre tree)");
+		System.out.println("\t endray_angles \t returns a file with four lines corresponding to the angles made by the endrays of the two geodesics given (one in treefile another in otherTreeFile)");
 	}
 	
 	
@@ -986,5 +988,17 @@ public class Analysis {
 		return intScatter;
 	}
 
-	
+	//Gets 4 angles to print out
+	public static void endRayAngles(PhyloTree[] trees, PhyloTree[] otherTrees, PrintWriter outFileStream) {
+		Geodesic g1 = getGeodesic(trees[0], trees[1],null);
+		Geodesic gA = getGeodesic(otherTrees[0], otherTrees[1], null);
+		
+		for (double e: Geodesic.getEndpointAngles(g1, gA, trees[0].getLeaf2NumMap(), trees[0].isRooted())) {
+			double ne = e*180/Math.PI;
+			
+			if (outFileStream!=null) outFileStream.println(ne);
+			System.out.println(ne);	
+		}
+		if (outFileStream!=null) outFileStream.close();
+	}
 }

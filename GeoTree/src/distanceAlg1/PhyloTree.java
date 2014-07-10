@@ -379,6 +379,37 @@ try{  // for stringIndexOutOfBoundsException
 		return splitSet1.containsAll(splitSet2) && splitSet2.containsAll(splitSet1);
 	}
 	
+	/** Returns sum of product of the common edges
+	 * 
+	 * @return
+	 **/
+	public double dotProduct(PhyloTree tree) {
+		// if the two trees do not have the same leaf2NumMap
+		if (!(this.getLeaf2NumMap().equals(tree.getLeaf2NumMap()))){
+			return 0;
+		}
+		
+		//Finds the common edges and multiplies their norms together
+		double sumOfProducts = 0;
+		for (PhyloTreeEdge e1 : this.edges) {
+			if (tree.getSplits().contains(e1.asSplit() ) ){
+				//we have found the same split in both trees
+				sumOfProducts += EdgeAttribute.product(  e1.getAttribute(),
+														 tree.getAttribOfSplit(e1.asSplit())  
+													  ).sumOfAttributeVector();
+			}
+		}
+		
+		return sumOfProducts;
+	}
+	/** Returns the angle (likely in radians) of the trees
+	 * 
+	 * @return
+	 * */
+	public double angleFormedWith(PhyloTree tree) {
+		return Math.acos(this.dotProduct(tree) / (this.getDistanceFromOriginNoLeaves()*tree.getDistanceFromOriginNoLeaves())); 
+	} 	
+	
 	/* * Normalizes so that the vector of all edges (both internal and ones ending in leaves) has length 1.
 	 * 
 	 */
@@ -994,7 +1025,7 @@ try{  // for stringIndexOutOfBoundsException
 			}
 			else {
 				// distToc2 = distToc1
-				// since the distance function is stictly convex, this implies that the 
+				// since the distance function is strictly convex, this implies that the 
 				// minimum is in between c1 and c2
 				// c1 becomes a
 				a = c1;
