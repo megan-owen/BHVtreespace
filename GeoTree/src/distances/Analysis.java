@@ -544,6 +544,11 @@ public class Analysis {
     			countSplits(trees, outfileStream);
     			System.exit(0);
     		}
+    		// computes the log map coordinates for each tree in trees,
+    		// relative to the first tree in otherTrees
+    		else if (algorithm.equals("log_map")) {
+    			computeAllLogMaps(trees,otherTrees[0],outfileStream);
+    		}
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
     			System.exit(1);
@@ -590,6 +595,7 @@ public class Analysis {
 		System.out.println("\t sample_point \t returns the tree on the geodesic between the trees in treefile at <sample point>");
 		System.out.println("\t topology_count \t returns a file containing information about the topologies in treefile");
 		System.out.println("\t split_count \t returns a file containing information about the splits appearing in the trees in treefile");
+		System.out.println("\t log_map \t returns a file containing the log map coordinates of the trees in treefile relative to the first tree in otherTreeFile (centre tree)");
 	}
 	
 	
@@ -923,7 +929,22 @@ public class Analysis {
 	        System.exit(1);
 	    }
 	}
+	
+	/**  Computes all log map coordinates for the trees in Trees,
+	 *   relative to centreTree.
+	 * @param nums
+	 * @return
+	 */
+	public static void computeAllLogMaps(PhyloTree[] trees,PhyloTree centreTree, PrintWriter outfileStream) {
+		double[] coords;
 		
+		for (PhyloTree tree: trees) {
+			coords = centreTree.getLogMap(tree);
+			outfileStream.println(Tools.doubleArray2String(coords));
+		}
+		
+	}
+	
 	
 	public static double mean(double [] nums) {
 		double sum = 0;

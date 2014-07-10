@@ -180,4 +180,17 @@ public class Tools {
 		}
 		return newCoords;
 	}
+
+	/** Converts a double array into a string of the entries separated by spaces.
+	 * 
+	 */
+	public static String doubleArray2String(double[] array) {
+		String s = "";
+		for (double e: array) {
+			s = s + e + " ";
+		}
+		// remove the last space
+		s = s.substring(0,s.length()-1);
+		return s;
+	}
 }
