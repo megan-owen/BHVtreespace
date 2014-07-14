@@ -77,7 +77,7 @@ public class CentroidMain {
 			
 			// check that the user hasn't inputted just -h
 			if (treeFile.equals("-h")) {
-				displayHelp(); System.exit(0);
+				displayHelp(); System.out.println("Help Displayed.");
 			}
 			
 			for (int i = 0; i < args.length - 1; i++) {
@@ -139,7 +139,7 @@ public class CentroidMain {
 					for (int j = 1; j<args[i].length(); j++) {
 						switch(args[i].charAt(j)) {						
 						// display help
-						case 'h': displayHelp(); System.exit(0); break;
+						case 'h': displayHelp(); System.out.println("Displayed Help."); break;
 						// permute leaves	
 						case 'p': permute = true; break;
 						// set trees to be unrooted
@@ -176,7 +176,7 @@ public class CentroidMain {
 			// TODO:  write to file
 			if (numTrees == 1) {
 				System.out.println("Mean tree is " + trees[0]);
-				System.exit(0);
+				System.out.println("Finished Succesfully");
 			}
 	
 			
@@ -212,9 +212,10 @@ public class CentroidMain {
 			}
 		}
 		catch(Exception error){
-			System.out.println("YEET, you dun goofed.");
+			error.printStackTrace();
+			//System.out.println("Error Caught " + );
 		}
-		System.exit(0);
+		System.out.println("Finished Succesfully");
 	}
 	
 	

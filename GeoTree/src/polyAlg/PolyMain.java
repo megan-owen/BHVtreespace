@@ -204,7 +204,7 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     }
     else {
     	System.out.println("Nexus format not supported.");
-    	System.exit(0);
+    	System.out.println("Nexus Catch- Finished Succesfully");
     }
     
 
@@ -213,6 +213,10 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     PhyloTree[] trees = new PhyloTree[numTrees];
     int treesWithErrors = 0;
     for (int i = 0; i < numTrees; i++) {
+    	//Check if tree is unrooted AND user toggled unrooted, otherwise throw Exception.
+    	if(!(rooted == false && isUnrootedTree(stringTrees.get(i))))
+    		throw new Exception("Tree marked as unrooted, but it isn't.");
+    	
     	// check for syntax errors in the string
     	if (PhyloTree.errorInSyntax(stringTrees.get(i))) {
     		treesWithErrors++;
@@ -758,7 +762,7 @@ public static void main(String[] args) throws Exception {
 	
 	if (args.length < 1) {
 		displayHelp();
-		System.exit(0);
+		System.out.println("No arguments received.");
 	}
 	treeFile = args[args.length-1];
 	for (int i = 0; i < args.length - 1; i++) {
@@ -766,7 +770,7 @@ public static void main(String[] args) throws Exception {
 		if (!args[i].startsWith("-")) {
 			System.out.println("Invalid command line option");
 			displayHelp();
-			System.exit(0);
+			throw new Exception("Bad Command");
 		}
 			
 		if (args[i].equals("--verbose")) {
@@ -774,7 +778,7 @@ public static void main(String[] args) throws Exception {
 		}
 		else if (args[i].equals("--help")) {
 			displayHelp();
-			System.exit(0);
+			System.out.println("Help Displayed.");
 		}
 
 		// output file
@@ -785,7 +789,7 @@ public static void main(String[] args) throws Exception {
 			}
 			else {
 				displayHelp();
-				System.exit(0);
+				System.out.println("Bad Output File.");
 			}
 		}
 			
@@ -802,7 +806,7 @@ public static void main(String[] args) throws Exception {
 				// display help
 				case 'h':
 					displayHelp();
-					System.exit(0);
+					System.out.println("Displayed help.");
 					break;
 					
 				// signify the tree file is large
@@ -839,8 +843,7 @@ public static void main(String[] args) throws Exception {
 				default:
 					System.out.println("Illegal command line option.\n");
 					displayHelp();
-					System.exit(0);
-					break;
+					throw new Exception("Bad Command");
 				} // end switch
 			} // end for j
 		} // end parsing an individual argument
@@ -849,17 +852,17 @@ public static void main(String[] args) throws Exception {
 	if (minLabelling) {
 		PhyloTree [] trees = readInTreesFromFile(treeFile,rooted);
 		getMinLabelling(trees[0],trees[1], outFile);
-		System.exit(0);
+		System.out.println("Finished minLabelling");
 	}
 	
 	if (largeFile) {
 		computeGeodesicsLargeFile(treeFile, outFile, rooted);
-		System.exit(0);
+		System.out.println("Finished largeFile");
 	}
 	
 	computeAllInterTreeGeodesicsFromFile(treeFile, outFile, doubleCheck, rooted);
 	
-	System.exit(0);
+	System.out.println("Finished Succesfully");
 
 }
 
@@ -923,7 +926,19 @@ public static PhyloTree getMinLabelling(PhyloTree tree1, PhyloTree tree2, String
 
 public static double calcGeoDist(PhyloTree t1, PhyloTree t2) throws Exception {
 	return getGeodesic(t1, t2, null).getDist();
-}
+	}
 
+public static boolean isUnrootedTree(String tree){
+	//No Pair found guarantees unrooted. Method works with this case.
+	//If pair is found, boolean is by default false, unable to know if rooted/unrooted.
+	tree = tree.substring(tree.indexOf("(")+1, tree.lastIndexOf(")"));
+	//Works down all levels one side. At the bottom erases levels going up. Repeats on another side.
+	while(tree.contains(")")){
+		String trunk = tree.substring(0,tree.indexOf(")"));
+		tree = tree.substring(0,trunk.lastIndexOf("(")) + tree.substring(tree.indexOf(")")+1);
+	}
+	//Check if the higher level has a single comma, IE has a single pair.
+	return (tree.length() - tree.replace(",", "").length()) >1;
+}
 }
 

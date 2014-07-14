@@ -379,192 +379,192 @@ public class Analysis {
 		double samplePt = -1;
 		
 		/* Parse command line arguments */
-
-		if (args.length < 1) {
-			System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
-		}
-		treeFile = args[args.length-1];
-		for (int i = 0; i < args.length - 1; i++) {
+		try{
+			if (args.length < 1) {
+				System.out.println("Error: Missing input file name"); displayHelp(); throw new Exception();
+			}
+			treeFile = args[args.length-1];
+			for (int i = 0; i < args.length - 1; i++) {
+				
+				if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
+				// specify algorithm
+				else if (args[i].equals("-a")) {
+					if (i < args.length -2) { algorithm = args[i+1]; i++; }
+					else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
+				}
+				// epsilon, if desired
+				else if (args[i].equals("-e")) {
+					if (i < args.length -2) { epsilon = Double.valueOf(args[i+1]); i++; }
+					else { System.err.println("Error: value for epsilon not specified"); displayHelp(); throw new Exception(); }
+				}
+				// other tree file, if desired
+				else if (args[i].equals("-f")) {
+					if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
+					else { System.err.println("Error: name of other tree file not specified"); displayHelp(); throw new Exception(); }
+				}
+				// output file
+				else if (args[i].equals("-o")) {
+					if (i < args.length -2) { outfile = args[i+1]; i++; }
+					else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
+				}	
+				// sample point on geodesic
+				else if (args[i].equals("-s")) {
+					if (i < args.length -2) { samplePt = Double.valueOf(args[i+1]); i++; }
+				}
+				// all other arguments.  Note we can have -vn
+				else { 
+					for (int j = 1; j<args[i].length(); j++) {
+						switch(args[i].charAt(j)) {						
+						// display help
+						case 'h': displayHelp(); System.out.println("Help Displayed."); break;
+						case 'u': rooted = false; break;
+						
+						default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
+						} // end switch
+					} // end j loop (arguments without parameter)
+				} // end parsing an individual argument
+			}  // end for i (looping through arguments)
 			
-			if (!args[i].startsWith("-")) { System.out.println("Invalid command line option"); displayHelp(); throw new Exception(); }
-			// specify algorithm
-			else if (args[i].equals("-a")) {
-				if (i < args.length -2) { algorithm = args[i+1]; i++; }
-				else { System.err.println("Error: algorithm not specified"); displayHelp(); throw new Exception(); }
+			/* Read in the trees  */
+			if (algorithm.equals("verify_treefile")) {
+				PolyMain.readInTreesFromFile(treeFile, rooted);
+				System.out.println("Done reading in trees from file " + treeFile);
+				System.out.println("Finished Reading in Trees.");
 			}
-			// epsilon, if desired
-			else if (args[i].equals("-e")) {
-				if (i < args.length -2) { epsilon = Double.valueOf(args[i+1]); i++; }
-				else { System.err.println("Error: value for epsilon not specified"); displayHelp(); throw new Exception(); }
+			
+			
+			PhyloTree[] trees = PolyMain.readInTreesFromFile(treeFile,rooted);
+			
+			if (otherTreeFile != null) {
+				otherTrees = PolyMain.readInTreesFromFile(otherTreeFile,rooted);
 			}
-			// other tree file, if desired
-			else if (args[i].equals("-f")) {
-				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
-				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); throw new Exception(); }
-			}
-			// output file
-			else if (args[i].equals("-o")) {
-				if (i < args.length -2) { outfile = args[i+1]; i++; }
-				else { System.err.println("Error: output file not specified");  displayHelp(); throw new Exception(); }
-			}	
-			// sample point on geodesic
-			else if (args[i].equals("-s")) {
-				if (i < args.length -2) { samplePt = Double.valueOf(args[i+1]); i++; }
-			}
-			// all other arguments.  Note we can have -vn
-			else { 
-				for (int j = 1; j<args[i].length(); j++) {
-					switch(args[i].charAt(j)) {						
-					// display help
-					case 'h': displayHelp(); System.exit(0); break;
-					case 'u': rooted = false; break;
+			
+			// Algorithms that don't write to an output file
+			if (algorithm.equals("compute_SSD")) {
+				// otherTreeFile should contain a single tree
+				// treeFile contains the list of trees to compute sum of square distance to
+				if (otherTreeFile == null) {
+					System.out.println("Error:  second tree file not specified");
+					throw new Exception();
+				}
 					
-					default: System.out.println("Illegal command line option.\n"); displayHelp(); throw new Exception();
-					} // end switch
-				} // end j loop (arguments without parameter)
-			} // end parsing an individual argument
-		}  // end for i (looping through arguments)
-		
-		/* Read in the trees  */
-		if (algorithm.equals("verify_treefile")) {
-			PolyMain.readInTreesFromFile(treeFile, rooted);
-			System.out.println("Done reading in trees from file " + treeFile);
-			System.exit(0);
-		}
-		
-		
-		PhyloTree[] trees = PolyMain.readInTreesFromFile(treeFile,rooted);
-		
-		if (otherTreeFile != null) {
-			otherTrees = PolyMain.readInTreesFromFile(otherTreeFile,rooted);
-		}
-		
-		// Algorithms that don't write to an output file
-		if (algorithm.equals("compute_SSD")) {
-			// otherTreeFile should contain a single tree
-			// treeFile contains the list of trees to compute sum of square distance to
-			if (otherTreeFile == null) {
-				System.out.println("Error:  second tree file not specified");
+				double ssd = CentroidMain.sumOfSquareDist(otherTrees[0], trees);
+				System.out.println("Sum of squares distance is " + ssd);
+				
+				System.out.println("Finished squares of distances.");
+			}
+	
+			// Algorithms that write to an outfile	
+			// Open output file
+			PrintWriter outfileStream = null;
+	
+			try {
+	        	outfileStream = new PrintWriter(new FileWriter(outfile));
+			
+	    		if (algorithm.equals("gtp_twofiles")) {
+	    			// otherTreeFile contains one list of trees to compare against the trees in treeFile
+	    			if (otherTreeFile == null) {
+	    				System.out.println("Error:  second tree file not specified");
+	    				throw new Exception();
+	    			}
+	    			
+	    			computeAllGeodesicsBtwLists(trees,otherTrees,outfile);
+	    			
+	    			System.out.println("Finished computing geodesic.");
+	    		}
+	    		
+	    		else if (algorithm.equals("normalize")) {
+	    			for(int i = 0; i < trees.length; i++) {
+	    				trees[i].normalize();
+	    				outfileStream.println(trees[i].getNewick(true));
+	    			}
+	    		}
+	    		
+	    		//  Compute projection of first tree in otherTreeFile onto the geodesic between
+	    		// the first two trees in treeFile
+	    		else if (algorithm.equals("project")) {
+	    			projectTreeToGeo(trees,otherTrees,epsilon,outfile);
+	    			System.out.println("Finished Projecting.");
+	    		}
+	    		// Compute the distance of the projection of the first tree in otherTreeFile
+	    		// on the geodesic between the first two trees in treeFile
+	    		else if ( algorithm.equals("project_distance")) {
+	    			Geodesic geo = getGeodesic(trees[0],trees[1],null);
+	    			PhyloTree projection = otherTrees[0].projectToGeo(geo,epsilon);
+	    			double dist = calcGeoDist(otherTrees[0],projection);
+	    			Presentation.printStringToFile(""+ dist, outfile);
+	    			System.out.println("Finished PRojection");
+	    		}
+	    		// Writes the lengths of the trees in treefile to outfile, 
+	    		// one per line
+	    		else if (algorithm.equals("lengths")) {
+	    			writeLengths(trees, outfileStream);
+	    			System.out.println("Finished Writing Lengths");
+	    		}
+	    		
+	    		//  Nicely prints out the splits that differ in the trees in trees from the trees in otherTrees
+	    		else if (algorithm.equals("diff_splits")) {
+	    			printIncompatibleSplits(trees,otherTrees,outfile, false);
+	    			System.out.println("Finished Printing");
+	    		}
+	    		
+	    	//  Nicely prints out the splits that differ between tree i in trees and tree i in otherTrees
+	    		else if (algorithm.equals("diff_splits_paired")) {
+	    			printIncompatibleSplits(trees,otherTrees,outfile, true);
+	    			System.out.println("Finished Printing");
+	    		}
+	    		
+	    		// returns the tree at point samplePt along the geodesic starting at tree 0 in treefile
+	    		// and ending at tree 1 in treefile.
+	    		// samplePt must be between 0 and 1
+	    		else if (algorithm.equals("sample_point")) {
+	    			if ((samplePt < 0) || (samplePt > 1)) {
+	    				System.err.println("Error: sample point is either missing or not between 0 and 1");
+	    				throw new Exception();
+	    			}
+	    			if (trees.length < 2) {
+	    				System.err.println("Error: need two trees in treefile");
+	    				throw new Exception();
+	    			}
+	    			PhyloTree sample = (getGeodesic(trees[0],trees[1],null)).getTreeAt(samplePt,trees[0].getLeaf2NumMap(),rooted); 
+	    			Presentation.printStringToFile(sample.getNewick(true), outfile);
+	    			System.out.println("Finished Presentation");
+	    		}
+	    		// returns a count of the different topologies in the tree file
+	    		else if (algorithm.equals("topology_count")) {
+	    			
+	    			countTopologies(trees, outfileStream);
+	    			System.out.println("Finished Topology Count");
+	    		}
+	    		// returns a count of the different splits in the tree file
+	    		else if (algorithm.equals("split_count")) {
+	    			
+	    			countSplits(trees, outfileStream);
+	    			System.out.println("Finished Split Count");
+	    		}
+	    		// returns 4 lines to the output file corresponding to the 4 angles
+	    		else if (algorithm.equals("endray_angles")) {
+	    			endRayAngles(trees, otherTrees, outfileStream);
+	    			System.out.println("Finished Endray Angles");
+	    		}
+	    		else {
+	    			System.out.println("Error:  no algorithm specified.\n");
+	    			throw new Exception();
+	    		}
+	    		
+	    		if (outfileStream != null) {
+	    			outfileStream.close();
+	    		}
+			} catch (FileNotFoundException e) {
+				System.out.println("Error opening or writing to " +outfile + ": "+ e.getMessage());
+				throw new Exception();
+			} catch (IOException e) {
+				System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
 				throw new Exception();
 			}
-				
-			double ssd = CentroidMain.sumOfSquareDist(otherTrees[0], trees);
-			System.out.println("Sum of squares distance is " + ssd);
-			
-			System.exit(0);
+	}catch(Exception error){
+			System.out.println("Well that didn't work. Atleast we are still here, no? " + error.getMessage());
 		}
-
-		// Algorithms that write to an outfile	
-		// Open output file
-		PrintWriter outfileStream = null;
-
-		try {
-        	outfileStream = new PrintWriter(new FileWriter(outfile));
-		
-    		if (algorithm.equals("gtp_twofiles")) {
-    			// otherTreeFile contains one list of trees to compare against the trees in treeFile
-    			if (otherTreeFile == null) {
-    				System.out.println("Error:  second tree file not specified");
-    				throw new Exception();
-    			}
-    			
-    			computeAllGeodesicsBtwLists(trees,otherTrees,outfile);
-    			
-    			System.exit(0);
-    		}
-    		
-    		else if (algorithm.equals("normalize")) {
-    			for(int i = 0; i < trees.length; i++) {
-    				trees[i].normalize();
-    				outfileStream.println(trees[i].getNewick(true));
-    			}
-    		}
-    		
-    		//  Compute projection of first tree in otherTreeFile onto the geodesic between
-    		// the first two trees in treeFile
-    		else if (algorithm.equals("project")) {
-    			projectTreeToGeo(trees,otherTrees,epsilon,outfile);
-    			System.exit(0);
-    		}
-    		// Compute the distance of the projection of the first tree in otherTreeFile
-    		// on the geodesic between the first two trees in treeFile
-    		else if ( algorithm.equals("project_distance")) {
-    			Geodesic geo = getGeodesic(trees[0],trees[1],null);
-    			PhyloTree projection = otherTrees[0].projectToGeo(geo,epsilon);
-    			double dist = calcGeoDist(otherTrees[0],projection);
-    			Presentation.printStringToFile(""+ dist, outfile);
-    			System.exit(0);
-    		}
-    		// Writes the lengths of the trees in treefile to outfile, 
-    		// one per line
-    		else if (algorithm.equals("lengths")) {
-    			writeLengths(trees, outfileStream);
-    			System.exit(0);
-    		}
-    		
-    		//  Nicely prints out the splits that differ in the trees in trees from the trees in otherTrees
-    		else if (algorithm.equals("diff_splits")) {
-    			printIncompatibleSplits(trees,otherTrees,outfile, false);
-    			System.exit(0);
-    		}
-    		
-    	//  Nicely prints out the splits that differ between tree i in trees and tree i in otherTrees
-    		else if (algorithm.equals("diff_splits_paired")) {
-    			printIncompatibleSplits(trees,otherTrees,outfile, true);
-    			System.exit(0);
-    		}
-    		
-    		// returns the tree at point samplePt along the geodesic starting at tree 0 in treefile
-    		// and ending at tree 1 in treefile.
-    		// samplePt must be between 0 and 1
-    		else if (algorithm.equals("sample_point")) {
-    			if ((samplePt < 0) || (samplePt > 1)) {
-    				System.err.println("Error: sample point is either missing or not between 0 and 1");
-    				throw new Exception();
-    			}
-    			if (trees.length < 2) {
-    				System.err.println("Error: need two trees in treefile");
-    				throw new Exception();
-    			}
-    			PhyloTree sample = (getGeodesic(trees[0],trees[1],null)).getTreeAt(samplePt,trees[0].getLeaf2NumMap(),rooted); 
-    			Presentation.printStringToFile(sample.getNewick(true), outfile);
-    			System.exit(0);
-    		}
-    		// returns a count of the different topologies in the tree file
-    		else if (algorithm.equals("topology_count")) {
-    			
-    			countTopologies(trees, outfileStream);
-    			System.exit(0);
-    		}
-    		// returns a count of the different splits in the tree file
-    		else if (algorithm.equals("split_count")) {
-    			
-    			countSplits(trees, outfileStream);
-    			System.exit(0);
-    		}
-    		// returns 4 lines to the output file corresponding to the 4 angles
-    		else if (algorithm.equals("endray_angles")) {
-    			endRayAngles(trees, otherTrees, outfileStream);
-    			System.exit(0);
-    		}
-    		else {
-    			System.out.println("Error:  no algorithm specified.\n");
-    			throw new Exception();
-    		}
-    		
-    		if (outfileStream != null) {
-    			outfileStream.close();
-    		}
-		} catch (FileNotFoundException e) {
-			System.out.println("Error opening or writing to " +outfile + ": "+ e.getMessage());
-			throw new Exception();
-		} catch (IOException e) {
-			System.out.println("Error opening or writing to " + outfile + ": " + e.getMessage());
-			throw new Exception();
-		}
-		
-		System.exit(0);
-		
 	}
 	
 	/** Help message (ie. which arguments can be used, etc.)
@@ -981,7 +981,6 @@ public class Analysis {
 			double ne = e*180/Math.PI;
 			
 			if (outFileStream!=null) outFileStream.println(ne);
-			System.out.println(ne);	
 		}
 		if (outFileStream!=null) outFileStream.close();
 	}
