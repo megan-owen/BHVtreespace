@@ -215,7 +215,7 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     for (int i = 0; i < numTrees; i++) {
     	//Check if tree is unrooted AND user toggled unrooted, otherwise throw Exception.
     	if(!(rooted == false && isUnrootedTree(stringTrees.get(i))))
-    		throw new Exception("Tree marked as unrooted, but it isn't.");
+    		System.out.println("Tree marked as unrooted, but it isn't.");
     	
     	// check for syntax errors in the string
     	if (PhyloTree.errorInSyntax(stringTrees.get(i))) {
