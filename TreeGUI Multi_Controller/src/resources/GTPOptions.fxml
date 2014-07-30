@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.GTPController">
+	<children>
+		<SplitPane fx:id="gtpTabPane" dividerPositions="0.29797979797979796" maxHeight="800.0" maxWidth="800.0" minHeight="800.0" minWidth="800.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+			<items>
+				<AnchorPane maxHeight="800.0" maxWidth="300.0" minHeight="800.0" minWidth="300.0" prefHeight="800.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+					<children>
+						<SplitPane dividerPositions="0.7878787878787878" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane SplitPane.resizableWithParent="false">
+									<children>
+										<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											<children>
+												<ToggleButton fx:id="normalToggle" mnemonicParsing="false" text="Rooted">
+													<VBox.margin>
+														<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+													</VBox.margin>
+												</ToggleButton>
+												<ToggleButton fx:id="gtpRooted_toggle" mnemonicParsing="false" text="Normalize">
+													<VBox.margin>
+														<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+													</VBox.margin>
+												</ToggleButton>
+												<Button fx:id="gtpSubmit_button" mnemonicParsing="false" text="Run">
+													<font>
+														<Font name="System Bold" size="15.0" />
+													</font>
+													<VBox.margin>
+														<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+													</VBox.margin>
+												</Button>
+											</children>
+										</VBox>
+									</children>
+
+								</AnchorPane>
+								<AnchorPane SplitPane.resizableWithParent="false">
+									<children>
+										<VBox prefWidth="300.0">
+											<children>
+												<Text fx:id="gtpOout_label" strokeType="OUTSIDE" strokeWidth="0.0" text="Output File Name" wrappingWidth="124.5390625" VBox.vgrow="ALWAYS" />
+												<TextField fx:id="gtpOut_field" VBox.vgrow="ALWAYS" />
+												<ListView fx:id="gtp_file_list" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+											</children>
+										</VBox>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+				<AnchorPane maxHeight="800.0" maxWidth="500.0" minHeight="800.0" minWidth="500.0" prefHeight="800.0" prefWidth="500.0">
+					<children>
+						<SplitPane dividerPositions="0.38095238095238093" layoutX="115.0" layoutY="78.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="416.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane maxHeight="600.0" maxWidth="500.0" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" />
+								<AnchorPane maxHeight="200.0" maxWidth="500.0" minHeight="200.0" minWidth="500.0" prefHeight="200.0" prefWidth="500.0" SplitPane.resizableWithParent="false">
+									<children>
+										<ScrollPane layoutX="101.0" layoutY="203.0" prefHeight="200.0" prefViewportHeight="21.0" prefViewportWidth="212.51220703125" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											<content>
+												<Text fx:id="gtpSummary_label" layoutX="101.0" layoutY="219.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Summary, Commands Used" />
+											</content>
+										</ScrollPane>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+			</items>
+		</SplitPane>
+	</children>
+</AnchorPane>

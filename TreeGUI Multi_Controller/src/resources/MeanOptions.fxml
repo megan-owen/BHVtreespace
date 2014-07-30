@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="800.0" maxWidth="800.0" minHeight="800.0" minWidth="800.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MeanController">
+	<children>
+		<SplitPane fx:id="meanTabPane" dividerPositions="0.29797979797979796" maxHeight="800.0" maxWidth="800.0" minHeight="800.0" minWidth="800.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+			<items>
+				<AnchorPane maxHeight="800.0" maxWidth="300.0" minHeight="800.0" minWidth="300.0" prefHeight="800.0" prefWidth="300.0">
+					<children>
+						<SplitPane dividerPositions="0.6896984924623115" orientation="VERTICAL" prefHeight="398.0" prefWidth="174.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+									<children>
+										<Text fx:id="algLabel" layoutX="69.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Desired Algorithm" />
+										<RadioButton fx:id="rand_radio" layoutX="60.0" layoutY="45.0" mnemonicParsing="false" text="Random" />
+										<RadioButton fx:id="randperm_radio" layoutX="60.0" layoutY="84.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="193.0" text="Random Permutation" />
+										<ToggleButton fx:id="meanRooted_toggle" layoutX="60.0" layoutY="354.0" mnemonicParsing="false" />
+										<Text fx:id="eFactorLabel" layoutX="79.0" layoutY="134.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Epsilon Factor" />
+										<TextField fx:id="eFactor_field" layoutX="75.0" layoutY="139.0" prefHeight="31.0" prefWidth="110.0" />
+										<Text fx:id="eValue_label" layoutX="87.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Epsilon value" />
+										<TextField fx:id="eValue_field" layoutX="75.0" layoutY="200.0" prefHeight="31.0" prefWidth="110.0" />
+										<Text fx:id="interval_label" layoutX="79.0" layoutY="255.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Display Interval" />
+										<TextField fx:id="interval_field" layoutX="75.0" layoutY="260.0" prefHeight="31.0" prefWidth="110.0" />
+										<Text fx:id="iterations_label" layoutX="83.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Max Iterations" />
+										<Slider fx:id="iterations_slide" layoutX="74.0" layoutY="322.0" prefHeight="18.0" prefWidth="110.0" />
+										<Text fx:id="meanRooted_label" layoutX="86.0" layoutY="375.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rooted Trees" />
+										<ToggleButton fx:id="perm_toggle" layoutX="60.0" layoutY="402.0" mnemonicParsing="false" />
+										<Text fx:id="perm_label" layoutX="86.0" layoutY="423.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Permutate Leaves" />
+										<Text fx:id="iterations_max" layoutX="186.0" layoutY="337.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2147483647">
+											<font>
+												<Font size="10.0" />
+											</font>
+										</Text>
+										<Text fx:id="iterations_min" layoutX="57.0" layoutY="335.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0">
+											<font>
+												<Font size="10.0" />
+											</font>
+										</Text>
+										<Text fx:id="cauchy_label" layoutX="74.0" layoutY="460.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cauchy Length " />
+										<TextField fx:id="cauchy_field" layoutX="70.0" layoutY="471.0" prefHeight="31.0" prefWidth="110.0" />
+										<Button fx:id="sturmSubmit_button" layoutX="106.0" layoutY="508.0" mnemonicParsing="false" text="Run" />
+									</children>
+
+								</AnchorPane>
+								<AnchorPane maxHeight="250.0" maxWidth="300.0" minHeight="250.0" minWidth="300.0" prefHeight="250.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+									<children>
+										<VBox alignment="TOP_CENTER" maxHeight="250.0" maxWidth="300.0" minHeight="250.0" minWidth="300.0" prefHeight="250.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											<children>
+												<Text fx:id="meanOut_label" strokeType="OUTSIDE" strokeWidth="0.0" text="Output File Name" wrappingWidth="124.5390625" />
+												<TextField fx:id="meanOut_field">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin></TextField>
+												<ListView fx:id="mean_file_list" maxHeight="200.0" maxWidth="300.0" minHeight="200.0" minWidth="300.0" prefHeight="200.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+											</children>
+										</VBox>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+				<AnchorPane maxHeight="800.0" maxWidth="500.0" minHeight="800.0" minWidth="500.0" prefHeight="800.0" prefWidth="500.0">
+					<children>
+						<SplitPane dividerPositions="0.949748743718593" layoutX="115.0" layoutY="78.0" orientation="VERTICAL" prefHeight="398.0" prefWidth="416.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane maxHeight="600.0" maxWidth="500.0" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" />
+								<AnchorPane maxHeight="200.0" maxWidth="500.0" minHeight="200.0" minWidth="500.0" prefHeight="200.0" prefWidth="500.0">
+									<children>
+										<ScrollPane layoutX="101.0" layoutY="13.0" prefHeight="47.0" prefViewportHeight="21.0" prefViewportWidth="212.51220703125" prefWidth="414.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											<content>
+												<Text fx:id="meanSummary_label" layoutX="101.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Summary, Commands Used" />
+											</content>
+										</ScrollPane>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+			</items>
+		</SplitPane>
+	</children>
+</AnchorPane>

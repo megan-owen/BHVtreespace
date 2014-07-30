@@ -1,0 +1,26 @@
+-u/-o/default_unrooted_GTPrawOut.txt/C:\Users\Marlon\Google Drive\Lehman Undergraduate Research\Megan Owen\Wrapper\Java Standalone\files\unrooted.txt
+
+Finished largeFile
+Average dist. computation was 0 ms for 5565 trees.
+Finished Succesfully
+.classpath
+.project
+.settings
+bin
+build.fxbuild
+default_unrooted_GTPrawOut.txt
+default_unrooted_symMatrix.txt
+default_unrooted_symMatrix.txt
+lib
+src
+unrooted_GTP-LOG.txt
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]
+ScatterChart@47bfc16d[styleClass=root chart]

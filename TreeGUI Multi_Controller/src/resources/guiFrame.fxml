@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="application.App">
+	<children>
+		<TabPane fx:id="tabPane" layoutX="85.0" layoutY="24.0"
+			tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
+			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+			AnchorPane.topAnchor="0.0">
+			<tabs>
+				<Tab fx:id="gtpTab" text="GTP">
+					<content>
+						<fx:include fx:id="gtpTabContent" source="GTPOptions.fxml"/>
+					</content>
+				</Tab>
+				<Tab fx:id="meanTab" text="Mean">
+					<content>
+						<fx:include fx:id="meanTabContent" source="MeanOptions.fxml"/>
+					</content>
+				</Tab>
+				<Tab fx:id="analysisTab" text="Analysis">
+					<content>
+						<fx:include fx:id="analysisTabContent" source="AnalysisOptions.fxml"/>
+					</content>
+				</Tab>
+			</tabs>
+		</TabPane>
+	</children>
+</AnchorPane>

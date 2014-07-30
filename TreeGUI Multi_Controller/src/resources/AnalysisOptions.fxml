@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AnalysisController">
+	<children>
+		<SplitPane fx:id="analysisTabPane" dividerPositions="0.29797979797979796" maxHeight="800.0" maxWidth="800.0" minHeight="800.0" minWidth="800.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+			<items>
+				<AnchorPane maxHeight="800.0" maxWidth="300.0" minHeight="800.0" minWidth="300.0" prefHeight="800.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+					<children>
+						<SplitPane dividerPositions="0.7878787878787878" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane maxHeight="550.0" maxWidth="300.0" minHeight="550.0" minWidth="300.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+									<children>
+										<Region layoutX="-6.0" layoutY="257.0" />
+										<ToggleButton fx:id="geo_toggle" layoutX="52.0" layoutY="14.0" mnemonicParsing="false" prefHeight="74.0" prefWidth="194.0" text="All geodesics between the trees in one file with the trees in a second file." wrapText="true" />
+										<ToggleButton fx:id="length_toggle" layoutX="52.0" layoutY="269.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="194.0" text="Lengths, Topology Count, and Split Counts." wrapText="true" />
+										<ToggleButton fx:id="project_toggle" layoutX="52.0" layoutY="98.0" mnemonicParsing="false" prefHeight="161.0" prefWidth="194.0" text="The projection of first tree in a second file onto the geodesic between the first two trees in the first file. Writes the projected tree to the specified out file." wrapText="true" />
+										<ToggleButton fx:id="sample_toggle" layoutX="52.0" layoutY="333.0" mnemonicParsing="false" prefHeight="97.0" prefWidth="194.0" text="Sample Point. A tree on the geodesic at a position between 0 and 1, written to an out file." wrapText="true" />
+										<Slider fx:id="sample_slider" blockIncrement="0.1" layoutX="52.0" layoutY="481.0" majorTickUnit="0.1" max="1.0" minorTickCount="2" prefHeight="18.0" prefWidth="194.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+										<Text fx:id="sampleMax" layoutX="52.0" layoutY="464.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+										<Text fx:id="sampleMin" layoutX="237.0" layoutY="464.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1" />
+										<Text fx:id="sampleVal" layoutX="135.0" layoutY="463.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Val" />
+									</children>
+									<padding>
+										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+									</padding>
+								</AnchorPane>
+								<AnchorPane maxHeight="250.0" maxWidth="300.0" minHeight="250.0" minWidth="300.0" prefHeight="250.0" prefWidth="300.0" SplitPane.resizableWithParent="false">
+									<children>
+										<VBox maxWidth="300.0" minWidth="300.0" prefWidth="300.0">
+											<children>
+												<Text fx:id="analysisOut_label" strokeType="OUTSIDE" strokeWidth="0.0" text="Output File Name" wrappingWidth="124.5390625" />
+												<TextField fx:id="analysisOut_field" />
+												<ListView fx:id="analysis_file_list" VBox.vgrow="ALWAYS" />
+											</children>
+										</VBox>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+				<AnchorPane maxHeight="800.0" maxWidth="500.0" minHeight="800.0" minWidth="500.0" prefHeight="800.0" prefWidth="500.0">
+					<children>
+						<SplitPane dividerPositions="0.9116161616161617" layoutX="115.0" layoutY="78.0" maxHeight="800.0" maxWidth="500.0" minHeight="800.0" minWidth="500.0" orientation="VERTICAL" prefHeight="800.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<items>
+								<AnchorPane maxHeight="600.0" maxWidth="500.0" minHeight="600.0" minWidth="500.0" prefHeight="600.0" prefWidth="500.0" />
+								<AnchorPane maxHeight="200.0" maxWidth="500.0" minHeight="200.0" minWidth="500.0" prefHeight="200.0" prefWidth="500.0" SplitPane.resizableWithParent="false">
+									<children>
+										<ScrollPane layoutX="101.0" layoutY="32.0" maxHeight="200.0" maxWidth="500.0" minHeight="200.0" minWidth="500.0" prefHeight="200.0" prefViewportHeight="21.0" prefViewportWidth="212.51220703125" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											<content>
+												<Text fx:id="analysisSummary_label" layoutX="101.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Summary, Commands Used" />
+											</content>
+										</ScrollPane>
+									</children>
+								</AnchorPane>
+							</items>
+						</SplitPane>
+					</children>
+				</AnchorPane>
+			</items>
+		</SplitPane>
+	</children>
+</AnchorPane>
