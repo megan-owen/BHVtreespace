@@ -721,6 +721,47 @@ public static void computeGeodesicsLargeFile(String inFileName, String outFileNa
     }
 }
 
+/** Open file fileName, reads in the trees, and outputs the distances computed by the polynomial distance algorithm, 
+ *  ignoring the leaf edges.
+ *  Assumes first line of file is number of trees, and then one tree per line.
+ *
+ */
+public static void computeGeodesicsInteriorEdgesOnly(String inFileName, String outFileName, boolean rooted){
+
+    
+    PhyloTree[] trees = readInTreesFromFile(inFileName,rooted);
+    int numTrees = trees.length;
+    if (verbose >= 1 ) {
+    	System.out.println("" + numTrees + " trees read in from " + inFileName);
+    }
+    
+    // print distances to file
+    PrintWriter outputStream = null;
+  
+    // Outputs the distances in a column, with the first two columns being the trees numbers and the third
+    // number the geodesic distance between those trees
+    try {
+        outputStream = new PrintWriter(new FileWriter(outFileName));
+ 
+    	for (int i = 0; i < numTrees -1 ; i++) {
+    		for (int j = i + 1; j< numTrees; j++) {
+    			double geoDist = getGeodesic(trees[i],trees[j],null).getInteriorEdgesOnlyDist();
+				outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geoDist, 6));
+			}
+			outputStream.println();
+		}
+		if (outputStream != null) {
+            outputStream.close();
+        }
+    } catch (FileNotFoundException e) {
+        System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
+        System.exit(1);
+    } catch (IOException e) {
+    	System.out.println("Error opening or writing to " + outFileName + ": " + e.getMessage());
+    	System.exit(1);
+    }
+}
+
 /** Help message (ie. which arguments can be used, etc.)
  * 
  */
@@ -730,6 +771,7 @@ public static void displayHelp() {
 	System.out.println("Optional arguments:");	
 	System.out.println("\t -d \t double check results, by computing each distance with the target tree as the starting tree and vice versa; default is false");
 	System.out.println("\t -h || --help \t displays this message");
+	System.out.println("\t -i \t compute the geodesic distances based only on the interior edges, ignoring the leaf edges");
 	System.out.println("\t -n \t normalize (vector of the lengths of all edges has length 1)");
 	System.out.println("\t -o <outfile> \t store the output in the file <outfile>");
 	System.out.println("\t -u \t unrooted trees (default is rooted trees)");
@@ -747,6 +789,7 @@ public static void main(String[] args) {
 	boolean minLabelling = false;   // used for relabelling one tree to minimize the geodesic distance
 	boolean rooted = true;
 	boolean largeFile = true;
+	boolean interiorEdgesOnly = true;   // only use interior edges to compute geodesic
 	
 	if (args.length < 1) {
 		displayHelp();
@@ -797,6 +840,11 @@ public static void main(String[] args) {
 					System.exit(0);
 					break;
 					
+				// use interior edges only in computing the distance
+				case 'i':
+					interiorEdgesOnly = true;
+					break;
+					
 				// signify the tree file is large
 				case 'l':
 					largeFile = true;
@@ -805,8 +853,7 @@ public static void main(String[] args) {
 				// relabel one tree to minimize the geodesic distance
 				case 'm':
 					minLabelling = true;
-					break;	
-					
+					break;			
 					
 				// normalize trees?
 				case 'n':
@@ -846,6 +893,11 @@ public static void main(String[] args) {
 	
 	if (largeFile) {
 		computeGeodesicsLargeFile(treeFile, outFile, rooted);
+		System.exit(0);
+	}
+	
+	if (interiorEdgesOnly) {
+		computeGeodesicsInteriorEdgesOnly(treeFile,outFile,rooted);
 		System.exit(0);
 	}
 	

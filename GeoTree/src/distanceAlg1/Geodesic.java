@@ -144,6 +144,19 @@ public class Geodesic {
 		return Math.sqrt(Math.pow(rs.getNonDesRSWithMinDist().getDistance(), 2) + commonEdgeDistSquared + leafContributionSquared);
 	}
 	
+	/** Don't include the contribution of the leaves in computing the geodesic distance.
+	 *  i.e. base it only on the interior edges
+	 * 
+	 * @return
+	 */
+	public double getInteriorEdgesOnlyDist() {
+		double commonEdgeDistSquared = 0;
+		for(int i = 0; i < commonEdges.size(); i++) {
+			commonEdgeDistSquared = commonEdgeDistSquared + Math.pow(commonEdges.get(i).getNorm(),2);
+		}
+		return Math.sqrt(Math.pow(rs.getNonDesRSWithMinDist().getDistance(), 2) + commonEdgeDistSquared);
+	}
+	
 	
 	/**  Displays the geodesic in user-friendly form.
 	 * 
