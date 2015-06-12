@@ -56,7 +56,7 @@ public class CentroidMain {
 	/**
 	 * @param args
 	 */
-	public static void  (String[] args) {		
+	public static void main (String[] args) {		
 		/* Variable initialization */
 		String treeFile = "";
 		String outfile = "output.txt"; // default
