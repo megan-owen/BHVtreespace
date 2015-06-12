@@ -528,6 +528,22 @@ public class Analysis {
     			Presentation.printStringToFile(sample.getNewick(true), outfile);
     			System.exit(0);
     		}
+    		// returns a file with <samplePt> +1 trees evenly spaced along the geodesic bewteen the two trees
+    		// in the treefile
+    		// (samplePt = # of parts we divide the geodesic into during the sampling process)
+    		else if (algorithm.equals("sample_along_geo")) {
+    			if (trees.length < 2) {
+    				System.err.println("Error: need two trees in treefile");
+    				System.exit(1);
+    			}
+    			int sampleNum = (int) samplePt;
+    			Geodesic geo = getGeodesic(trees[0],trees[1],null);
+    			for (int i = 0; i <= sampleNum; i++) {
+    				outfileStream.println(geo.getTreeAt(i/(double)sampleNum,trees[0].getLeaf2NumMap(),rooted).getNewick(true));
+    			}
+    			outfileStream.close();
+    			System.exit(0);
+    		}
     		// returns a count of the different topologies in the tree file
     		else if (algorithm.equals("topology_count")) {
     			
@@ -576,7 +592,7 @@ public class Analysis {
 		System.out.println("\t -e <epsilon> \t specifies epsilon, if needed.");
 		System.out.println("\t -f <otherTreeFile> \t reads in an additional tree file");
 		System.out.println("\t -o <outfile> \t store the output in the file <outfile>.  Default is output.txt");
-		System.out.println("\t -s <sample point> \t a number between 0 and 1, inclusive.");
+		System.out.println("\t -s <sample num> \t a number used for either the sample_point or sample_along_geo algorithms.");
 		System.out.println("\t -u \t trees are unrooted. Default is trees are rooted.");
 		System.out.println("\n");
 		System.out.println("Algorithms are:");
@@ -588,7 +604,8 @@ public class Analysis {
 		System.out.println("\t lengths \t computes the lengths (norm of edge vectors) of all trees in treefile");
 		System.out.println("\t diff_splits \t nicely prints out (to the output file) the splits that differ between trees in treefile and trees in otherTreeFile");
 		System.out.println("\t diff_splits_paired \t nicely prints out (to the output file) the splits the differ between tree i in treefile and tree i in otherTreeFile");
-		System.out.println("\t sample_point \t returns the tree on the geodesic between the trees in treefile at <sample point>");
+		System.out.println("\t sample_along_geo \t returns a file with trees sampled along the geodesic between the trees in treefile at <sample num> intervals");
+		System.out.println("\t sample_point \t returns the tree on the geodesic between the trees in treefile at <sample num> (sample point), which is a number between 0 and 1, inclusive");
 		System.out.println("\t topology_count \t returns a file containing information about the topologies in treefile");
 		System.out.println("\t split_count \t returns a file containing information about the splits appearing in the trees in treefile");
 		System.out.println("\t endray_angles \t returns a file with four lines corresponding to the angles made by the endrays of the two geodesics given (one in treefile another in otherTreeFile)");

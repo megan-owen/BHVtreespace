@@ -100,7 +100,7 @@ public class AnalysisTest {
 	public void testGetCommonSplits() {
 		assertNull("Test 1 (tree array empty) failed", Analysis.getCommonSplits(treesEmpty));
 		
-		assertEquals("Test 2 (no common edges) failed", 0, Analysis.getCommonSplits(treesNoCommonEdges).size());
+		assertEquals("Test 2 (no common edges) failed", 1, Analysis.getCommonSplits(treesNoCommonEdges).size());
 		
 		Bipartition split = new Bipartition("111000");		
 		

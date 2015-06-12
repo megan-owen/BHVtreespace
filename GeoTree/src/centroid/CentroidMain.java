@@ -21,6 +21,10 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math3.analysis.solvers.BrentSolver;
+import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
+
 import distanceAlg1.*;
 import distances.Analysis;
 import static polyAlg.PolyMain.getGeodesic;
@@ -52,7 +56,7 @@ public class CentroidMain {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {		
+	public static void  (String[] args) {		
 		/* Variable initialization */
 		String treeFile = "";
 		String outfile = "output.txt"; // default
@@ -67,6 +71,7 @@ public class CentroidMain {
 		double epsilonFactor = 5000;
 		double epsilon = 0;
 		int bootstrapRep = 0;
+		int p = 2;
 		
 		/* Parse command line arguments */
 
@@ -133,6 +138,12 @@ public class CentroidMain {
 				if (i < args.length - 2) { epsilonFactor = Double.valueOf(args[i+1]); i++; }
 				else { System.err.println("Error: epsilon factor for determining convergence not specified"); displayHelp(); System.exit(1); }
 			}	
+			
+			// compute the tree minimizing the sum of the geodesic distances to the p-th power
+			else if (args[i].equals("-q")) {
+				if (i < args.length - 2) { p = Integer.valueOf(args[i+1]); i++; }
+				else { System.err.println("Error: p value for finding the tree minimizing the sum of the distances to the p-th power not specified"); displayHelp(); System.exit(1); }
+			}
 				
 			// all other arguments.  Note we can have -vn
 			else { 
@@ -191,6 +202,12 @@ public class CentroidMain {
 			epsilon = getEpsilon(trees,epsilonFactor);  // info about this printed in getEpsilon method
 		}
 			
+		if (p >= 2) {
+			getPMeanViaRandPermCauchy(trees,p,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			System.exit(0);
+		}
+		
+		
 		// algorithm chooses the next tree at random; convergence tested by Cauchy sequence
 		if (algorithm.equals("random") && !twoRuns) {
 			getCentroidViaRandomCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
@@ -287,6 +304,8 @@ public class CentroidMain {
 			return null;
 		}
 	}
+	
+	
 	
 	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
@@ -504,6 +523,8 @@ public class CentroidMain {
 		}
 		return centroids;
 	}
+	
+	
 	
 	
 	
@@ -768,6 +789,106 @@ public class CentroidMain {
 		System.out.println();*/
 	}
 	
+	
+	public static PhyloTree getPMeanViaRandPermCauchy(PhyloTree[] trees, int p, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
+		DecimalFormat d6o = new DecimalFormat("#0.######");
+		Boolean converge = false;
+		int numTrees = trees.length;
+		Vector<PhyloTree> oldCentroids = new Vector<PhyloTree>();	  // stores the last 5 centroids form for checking for cauchy sequence		
+			
+		// initialize the coefficients for the polynomial we solve each iteration
+		// make a double[] containing the coefficients
+		// constant, deg 1, deg 2, ...
+		// p d(T_k,x_{k-1})^{p-2} k t^{p-1} +t -1 =0
+		double[] coeffs= new double[p];
+//		coeffs[0] = -1;
+//		coeffs[1] = 1;
+		for(int j = 2; j < p-1; j++) {
+			coeffs[j] = 0;
+		}
+		
+		// initialize the solver
+		//BrentSolver solver = new BrentSolver();
+		LaguerreSolver solver = new LaguerreSolver();
+		
+		/*  Permute the trees for this round. */
+		PhyloTree [] shuffledTrees = permuteTrees(trees);
+			
+		// find the first centroid candidate
+		PhyloTree centroid = shuffledTrees[0];
+		oldCentroids.add(centroid.clone());
+		int cauchyIndex = 0;  // last position in the vector that there is a old centroid at
+			
+		int i = 1;
+		while ((i < numIter ) && (!converge)) {
+			// Shuffle trees if necessary
+			if (i % numTrees == 0) {
+				shuffledTrees = permuteTrees(trees);
+			}
+			
+			// make a double[] containing the coefficients
+			// constant, deg 1, deg 2, ...
+			// p d(T_k,x_{k-1})^{p-2} 1/k t^{p-1} +t -1 =0
+			
+			double d = getGeodesic(centroid,shuffledTrees[i % numTrees],null).getDist();
+			
+			// need to cast for when p = 2, and need to add one (the coeffs[1] = 1 that we initialized)
+			if (p ==2) {
+				coeffs[p-1] = p*Math.pow(d,p)/(double)i + 1;
+			}
+			else {
+				coeffs[p-1] = p*Math.pow(d,p)/(double)i;
+			}
+			coeffs[0] = -Math.pow(d,2);
+			coeffs[1] = Math.pow(d,2);
+			// initialize the polynomial
+			PolynomialFunction func = new PolynomialFunction(coeffs);
+			// arguments are:  max number of iterations (100 suggested), functions, two domain values (min and max)
+			double t = solver.solve(100,func,0,1);
+			
+			
+			if (i < 2000) {
+				System.out.println("p is " + p + ", p-1 coeff is " + coeffs[p-1] + " and t is " + t);
+			}
+			centroid = getGeodesic(centroid, shuffledTrees[i%numTrees],null).getTreeAt((1-t),centroid.getLeaf2NumMap(),centroid.isRooted());		
+
+			if (displayIter > 0) {
+				if ((i%displayIter ==0) &&  (i >= displayStart)) {
+					System.out.println("Iteration " + i + ". Variance, tree: " + d6o.format(variance(centroid,trees)) + ", " + centroid.getNewick(true));
+				}
+			}
+			
+			/* Check for Cauchy sequence to determine convergence. */
+			
+			for(int j = cauchyIndex; j >= 0; j--) {
+				double dist = calcGeoDist(oldCentroids.get(j), centroid);
+				if (dist > epsilon) {
+					// don't have a Cauchy sequence.  Move all already checked centroids to the front of the queue.
+					for (int k = j; k >= 0; k--) {
+						oldCentroids.remove(k);
+					}
+					break;
+				}
+			}
+			oldCentroids.add(centroid.clone());
+			cauchyIndex = oldCentroids.size() - 1;
+			
+			// Check if we have a Cauchy sequence of the desired length.
+			if (oldCentroids.size() == cauchyLength ) {
+				converge = true;
+			}
+			i++;
+		}
+		
+		displayCauchy("random permutations of the tree set.",i,cauchyLength,epsilon,converge,centroid,trees,outfile);
+
+		if (converge) {
+			return centroid;
+		}
+		else {
+			return null;
+		}
+	}
 	
 }
 

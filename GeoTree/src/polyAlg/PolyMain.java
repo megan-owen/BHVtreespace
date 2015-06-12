@@ -572,25 +572,23 @@ public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, boolean d
 	Date endTime;
 	int numTrees = trees.length;
 	long[][] compTimes = new long[numTrees][numTrees];
-	long avgCompTime = 0;
+	long compTime = 0;
 	double[][] dists = new double[numTrees][numTrees];
 	Geodesic[][] geos = new Geodesic[numTrees][numTrees];
 	
+	startTime = new Date();
 	for (int i = 0; i < numTrees; i++) {
 		for (int j = i+1 ; j < numTrees;j++) {
-			startTime = new Date();
 			geos[i][j] = getGeodesic(trees[i], trees[j], "geo_" + i + "_" + j);
 			dists[i][j] = geos[i][j].getDist();
-			endTime = new Date();
-			compTimes[i][j] = endTime.getTime() - startTime.getTime();
-			// sum up all the times, then divide by number of computations
-			avgCompTime = avgCompTime + compTimes[i][j];
-			//	System.out.println("computed in time " + compTimes[i][j] + " geos[" + i + "][" + j + "].getRS().getMinAscRSDistance() is " + geos[i][j].getRS().getMinAscRSDistance() + "; commonEdges is " +geos[i][j].getCommonEdges() + "; and leafContributionSquared is " + geos[i][j].getLeafContributionSquared());
 		}
 	}
+	endTime = new Date();
+	// sum up all the times, then divide by number of computations
+	compTime = compTime + endTime.getTime() - startTime.getTime();
 	
 	// compute average
-	avgCompTime = avgCompTime/ (numTrees * (numTrees - 1)/2);
+	double avgCompTime = ((double) compTime)/ (numTrees * (numTrees - 1)/2);
 	System.out.println("Average dist. computation was " + avgCompTime + " ms for " + numTrees * (numTrees - 1)/2 + " trees.");
 			
 	// we want to doublecheck
@@ -651,26 +649,22 @@ public static void computeAllInterTreeGeodesicsFromFile(String inFileName, Strin
     Geodesic[][] geos = getAllInterTreeGeodesics(trees, doubleCheck);
     
     // print distances to file
-        PrintWriter outputStream = null;
+    PrintWriter outputStream = null;
   
-        // Outputs the distances in a column, with the first two columns being the trees numbers and the third
+    // Outputs the distances in a column, with the first two columns being the trees numbers and the third
     // number the geodesic distance between those trees
-        try {
-        	outputStream = new PrintWriter(new FileWriter(outFileName));
+    try {
+        outputStream = new PrintWriter(new FileWriter(outFileName));
  
-    		for (int i = 0; i < numTrees -1 ; i++) {
-    			for (int j = i + 1; j< numTrees; j++) {
-/*    				if (verbose >0) {
-    					System.out.println("Geo " + i + " -> " + j + " is " + geos[i][j]);
-    					System.out.println(geos[i][j].toStringVerbose(trees[i], trees[j]));
-    				}*/
-				outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geos[i][j].getDist(), 6));
-			}
-			outputStream.println();
-		}
-		if (outputStream != null) {
-            outputStream.close();
-        }
+    	for (int i = 0; i < numTrees -1 ; i++) {
+    		for (int j = i + 1; j< numTrees; j++) {
+    			outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geos[i][j].getDist(), 6));
+    		}
+    		outputStream.println();
+    	}
+    	if (outputStream != null) {
+    		outputStream.close();
+    	}
     } catch (FileNotFoundException e) {
         System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
         System.exit(1);
@@ -788,8 +782,8 @@ public static void main(String[] args) {
 	boolean doubleCheck = false;
 	boolean minLabelling = false;   // used for relabelling one tree to minimize the geodesic distance
 	boolean rooted = true;
-	boolean largeFile = true;
-	boolean interiorEdgesOnly = true;   // only use interior edges to compute geodesic
+	boolean largeFile = true;		// don't store geodesic objects for each distance
+	boolean interiorEdgesOnly = false;   // only use interior edges to compute geodesic
 	
 	if (args.length < 1) {
 		displayHelp();
@@ -841,13 +835,14 @@ public static void main(String[] args) {
 					break;
 					
 				// use interior edges only in computing the distance
+				// need to also make large files false
 				case 'i':
 					interiorEdgesOnly = true;
 					break;
 					
-				// signify the tree file is large
+				// default is large files.  Choose l flag to compute and store geodesics and get timing info.
 				case 'l':
-					largeFile = true;
+					largeFile = false;
 					break;
 					
 				// relabel one tree to minimize the geodesic distance
