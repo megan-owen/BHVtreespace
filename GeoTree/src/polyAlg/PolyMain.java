@@ -173,22 +173,65 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
         inputStream = new BufferedReader(new FileReader(inFileName));
 
         String l;
-        while ((l = inputStream.readLine()) != null) {
+        
+        // @author: ceaviles
+        // Expands upon the original method to allow for multiple trees on one line.
+        // Trees must be separated by semicolons, with a space between.
+        l = inputStream.readLine();
+        while (l != null)
+        {
         	// check for blank lines
-        	if (!(l.equals("")) && !(l.equals("\n")) ) {
-        		if (l.charAt(0) != '#') {  // also ignore lines beginning with # as comment lines
+        	if (!(l.equals("")) && !(l.equals("\n")) )
+        	{
+        		if (l.charAt(0) != '#') // also ignore lines beginning with # as comment lines
+        		{
         			// If there is a ( in the line, assume there is a tree starting there
         			// and remove all text before.
         			// Otherwise, ignore the line.
         			int index = l.indexOf("(");
-        			if (!(index == -1)) {
-        				l = l.substring(index);
-        				stringTrees.add(l);
+        			int indexEnd = l.indexOf("; ");
+        			if (!(index == -1))
+        			{
+        				if (indexEnd == -1)
+        				{
+        					stringTrees.add(l.substring(index));
+        				}
+        				else
+        				{
+        					stringTrees.add(l.substring(index,indexEnd));
+        				}
         				numTrees++;
+        			}
+        			if (indexEnd == -1)
+        			{
+        				l = inputStream.readLine();
+        			}
+        			else
+        			{
+        				l = l.substring(indexEnd);
         			}
         		}
         	}
+        	
         }
+        
+//        while ((l = inputStream.readLine()) != null) {
+//        	// check for blank lines
+//        	if (!(l.equals("")) && !(l.equals("\n")) ) {
+//        		if (l.charAt(0) != '#') {  // also ignore lines beginning with # as comment lines
+//        			// If there is a ( in the line, assume there is a tree starting there
+//        			// and remove all text before.
+//        			// Otherwise, ignore the line.
+//        			int index = l.indexOf("(");
+//        			if (!(index == -1)) {
+//        				l = l.substring(index);
+//        				stringTrees.add(l);
+//        				numTrees++;
+//        			}
+//        		}
+//        	}
+//        }
+        
         if (inputStream != null) {
             inputStream.close();
         }
@@ -572,23 +615,25 @@ public static Geodesic[][] getAllInterTreeGeodesics(PhyloTree[] trees, boolean d
 	Date endTime;
 	int numTrees = trees.length;
 	long[][] compTimes = new long[numTrees][numTrees];
-	long compTime = 0;
+	long avgCompTime = 0;
 	double[][] dists = new double[numTrees][numTrees];
 	Geodesic[][] geos = new Geodesic[numTrees][numTrees];
 	
-	startTime = new Date();
 	for (int i = 0; i < numTrees; i++) {
 		for (int j = i+1 ; j < numTrees;j++) {
+			startTime = new Date();
 			geos[i][j] = getGeodesic(trees[i], trees[j], "geo_" + i + "_" + j);
 			dists[i][j] = geos[i][j].getDist();
+			endTime = new Date();
+			compTimes[i][j] = endTime.getTime() - startTime.getTime();
+			// sum up all the times, then divide by number of computations
+			avgCompTime = avgCompTime + compTimes[i][j];
+			//	System.out.println("computed in time " + compTimes[i][j] + " geos[" + i + "][" + j + "].getRS().getMinAscRSDistance() is " + geos[i][j].getRS().getMinAscRSDistance() + "; commonEdges is " +geos[i][j].getCommonEdges() + "; and leafContributionSquared is " + geos[i][j].getLeafContributionSquared());
 		}
 	}
-	endTime = new Date();
-	// sum up all the times, then divide by number of computations
-	compTime = compTime + endTime.getTime() - startTime.getTime();
 	
 	// compute average
-	double avgCompTime = ((double) compTime)/ (numTrees * (numTrees - 1)/2);
+	avgCompTime = avgCompTime/ (numTrees * (numTrees - 1)/2);
 	System.out.println("Average dist. computation was " + avgCompTime + " ms for " + numTrees * (numTrees - 1)/2 + " trees.");
 			
 	// we want to doublecheck
@@ -649,22 +694,26 @@ public static void computeAllInterTreeGeodesicsFromFile(String inFileName, Strin
     Geodesic[][] geos = getAllInterTreeGeodesics(trees, doubleCheck);
     
     // print distances to file
-    PrintWriter outputStream = null;
+        PrintWriter outputStream = null;
   
-    // Outputs the distances in a column, with the first two columns being the trees numbers and the third
+        // Outputs the distances in a column, with the first two columns being the trees numbers and the third
     // number the geodesic distance between those trees
-    try {
-        outputStream = new PrintWriter(new FileWriter(outFileName));
+        try {
+        	outputStream = new PrintWriter(new FileWriter(outFileName));
  
-    	for (int i = 0; i < numTrees -1 ; i++) {
-    		for (int j = i + 1; j< numTrees; j++) {
-    			outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geos[i][j].getDist(), 6));
-    		}
-    		outputStream.println();
-    	}
-    	if (outputStream != null) {
-    		outputStream.close();
-    	}
+    		for (int i = 0; i < numTrees -1 ; i++) {
+    			for (int j = i + 1; j< numTrees; j++) {
+/*    				if (verbose >0) {
+    					System.out.println("Geo " + i + " -> " + j + " is " + geos[i][j]);
+    					System.out.println(geos[i][j].toStringVerbose(trees[i], trees[j]));
+    				}*/
+				outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geos[i][j].getDist(), 6));
+			}
+			outputStream.println();
+		}
+		if (outputStream != null) {
+            outputStream.close();
+        }
     } catch (FileNotFoundException e) {
         System.out.println("Error opening or writing to " + outFileName + ": "+ e.getMessage());
         System.exit(1);
@@ -771,6 +820,209 @@ public static void displayHelp() {
 	System.out.println("\t -u \t unrooted trees (default is rooted trees)");
 	System.out.println("\t -v || --verbose \t verbose output");
 }
+
+/** @author: ceaviles
+ * Automatically reads in the output of computeAllInterTreeGeodesicsFromFile and returns it as a two-dimensional matric of doubles.
+ * || Helper Function ||
+ *
+ */
+public static double[][] distanceArrayFromArray(PhyloTree[] trees, boolean doubleCheck)
+{
+    int numTrees = trees.length;
+    
+    if (numTrees < 2) {
+    	System.out.println("Error:  tree file must contain at least 2 trees");
+    	System.exit(1);
+    }
+    
+    Geodesic[][] geos = getAllInterTreeGeodesics(trees, doubleCheck);
+    
+    double[][] distances = new double[geos.length][geos.length];
+    
+    for (int i = 0; i < geos.length; i++)
+    {
+    	for (int j = 0; j < geos[i].length; j++)
+    	{
+    		if (i == j) distances[i][j] = 0;
+    		else distances[i][j] = geos[i][j].getDist();
+    		distances[j][i] = distances[i][j];
+    	}
+    }
+    
+    return distances;
+}
+
+/** @author: ceaviles
+ * Calculates the smallest distance for each point to any other point.
+ * Input array is expected to be generated by geodesicArrayFromFile().
+ * || Helper Function ||
+ *
+ */
+public static double[] distanceMinimums(double[][] distances)
+{
+    //Generate empty array to contain the minimums.
+    double[] mins = new double[distances.length];
+    
+    for (int i = 0; i < distances.length; i++)
+    {
+    	//Assume the first item in the row is the minimum
+    	double min = distances[i][0];
+    	//The first item of the first row is 0, as it's on the diagonal.
+    	//Therefore, we'll instead assume the final item is the minimum.
+    	if (i == 0) min = distances[0][1];
+    	
+    	//Now check every other item in that row, to see if it is less than the assumed minimum.
+    	for (int j = 0; j < distances.length; j++)
+    	{
+    		//The diagonal of the array is made up of 0s, which we want to ignore.
+    		if ((i != j) && (distances[i][j] < min))
+    		{
+    			min = distances[i][j];
+    		}
+    	}
+    	//Store the minimum in the array, at the index correlating to that point.
+    	mins[i] = min;
+    }
+    
+    return mins;
+}
+
+/** @author: ceaviles
+ *  Checks for extreme cases of isolated outliers: If a point's shortest distance to any other point
+ *  is greater than every other distance between points, with some tolerance, it is marked for removal.
+ *  
+ *  This method does not work for data sets where the points are shaped in some sort of line.
+ *  For example: the 'triangle.txt' example included with SturmMean.
+ *  This method works best when there is a significant primary cluster, with isolated/'obvious' outliers.
+ *
+ */
+//default
+public static boolean[] simpleOutlierSpotter(PhyloTree[] trees)
+{
+	return simpleOutlierSpotter(trees, false, 1.5);
+}
+
+//default, without doubleCheck
+public static boolean[] simpleOutlierSpotter(PhyloTree[] trees, double tolerance)
+{
+	return simpleOutlierSpotter(trees, false, tolerance);
+}
+
+//default, without tolerance
+public static boolean[] simpleOutlierSpotter(PhyloTree[] trees, boolean doubleCheck)
+{
+	return simpleOutlierSpotter(trees, doubleCheck, 1.5);
+}
+
+//full method
+public static boolean[] simpleOutlierSpotter(PhyloTree[] trees, boolean doubleCheck, double tolerance)
+{
+    double[][] distances = distanceArrayFromArray(trees, doubleCheck);
+    double[] mins = distanceMinimums(distances);
+    
+    //An empty array is created just to store which points should be considered outliers.
+    //Booleans initialize to 'false,' which is helpful here.
+    boolean[] outliers = new boolean[distances.length];
+    
+    boolean notDone = true;
+    while(notDone)
+    {
+    	//Assume this will be the final iteration.
+    	//If an outlier is found, the loop iterates again to re-check the remaining points.
+    	notDone = false;
+    	
+    	//The first inner loop iterates through the minimum distances.
+    	//It compares each point's minimum to all the other distances.
+    	for (int m = 0; m < mins.length; m++)
+    	{
+    	    boolean isOutlier = true;  //Guilty until proven innocent.
+    	    
+    	    //If outliers[m] is true, the point is already an outlier and doesn't need to be re-checked.
+    	    //If the minimum distance for the point is '0', then it must be a clone of another point.
+        	if ((!outliers[m]) && (mins[m] != 0))
+        	{
+        		int i = 0;
+        		while (i < mins.length-1) //-1 because we don't need to check the final row,
+        		{						  //as we'll have already checked the final column.
+        			//By setting j to i, we avoid checking all of the data below the diagonal.
+        			//By adding 1 to that, we also avoid the diagonal.
+            		int j = i+1;
+	    			while(j < mins.length)
+	    			{
+	    				//The loop ends immediately upon finding that the point isn't an outlier.
+	    				//It does not check distances relating to points that were already deemed outliers.
+	    				if ((m != i) && (m != j) && !(outliers[i]) && !(outliers[j])
+	    						&& (mins[m] < distances[i][j]/tolerance))
+	        			{
+	    					i = mins.length;
+	    					j = mins.length;
+	        				isOutlier = false;
+	        			}
+	    				j++;
+	    			}
+	    			i++;
+	    		}
+            	//If the loop was not canceled, the point is marked as an outlier...
+	         	outliers[m] = isOutlier;
+	         	//...and the loop is set to iterate again.
+	         	//The check on 'm' is a very shallow effort to save a loop, as there's no point
+	         	//re-checking the entire array if the only outlier is the first element.
+            	if ((isOutlier) && (m != 0)) notDone = true;
+        	}
+    	}
+    	//Ideally, at this point we would want to re-calculate the mins array to not include
+    	//distances to known outliers. However, this 'simple' function is already very complicated.
+    }
+	
+	//Printing the results. Nothing is removed from the array, but it records what elements are outliers.
+    for (int i = 0; i < outliers.length; i++)
+    {
+    	if (outliers[i])
+    	{
+    		System.out.printf("%-"+(Integer.toString(outliers.length).length()+1)+"s",(i + 1));
+    		System.out.println("Can be removed");
+    	}
+    }
+    //The function returns the outliers array, so that it can be used by other functions
+    //in a larger structure, if so desired.
+    return outliers;
+}
+
+/** @author: ceaviles
+ *  Removes outliers found through the previous method, simpleOutlierSpotter.
+ *  
+ *  It returns a new PhyloTree array with the identified outliers removed.
+ *
+ */
+//default, does not require the outliers to have been spotted previously
+public static PhyloTree[] removeOutliers(PhyloTree[] trees)
+{
+	return removeOutliers(trees, simpleOutlierSpotter(trees, false, 1.5));
+}
+
+//If the outliers were already found, there is no need to re-find them.
+public static PhyloTree[] removeOutliers(PhyloTree[] trees, boolean[] outliers)
+{
+	if (trees.length != outliers.length)
+	{
+		System.out.println("Your outliers array does not appear to match up with your trees array."
+				+ "\nReturning the original array.");
+		return trees;
+	}
+	int count = 0;
+	for (int i = 0; i < outliers.length; i++)
+	{
+		if (outliers[i]) count++;
+	}
+	PhyloTree[] newTrees = new PhyloTree[trees.length-count];
+	count = 0;
+	for (int i = 0; i < newTrees.length; i++)
+	{
+		if (outliers[i]) count++;
+		newTrees[i] = trees[i+count];
+	}
+	return newTrees;
+}
 	
 	
 /**
@@ -782,8 +1034,8 @@ public static void main(String[] args) {
 	boolean doubleCheck = false;
 	boolean minLabelling = false;   // used for relabelling one tree to minimize the geodesic distance
 	boolean rooted = true;
-	boolean largeFile = true;		// don't store geodesic objects for each distance
-	boolean interiorEdgesOnly = false;   // only use interior edges to compute geodesic
+	boolean largeFile = true;
+	boolean interiorEdgesOnly = true;   // only use interior edges to compute geodesic
 	
 	if (args.length < 1) {
 		displayHelp();
@@ -835,14 +1087,13 @@ public static void main(String[] args) {
 					break;
 					
 				// use interior edges only in computing the distance
-				// need to also make large files false
 				case 'i':
 					interiorEdgesOnly = true;
 					break;
 					
-				// default is large files.  Choose l flag to compute and store geodesics and get timing info.
+				// signify the tree file is large
 				case 'l':
-					largeFile = false;
+					largeFile = true;
 					break;
 					
 				// relabel one tree to minimize the geodesic distance
