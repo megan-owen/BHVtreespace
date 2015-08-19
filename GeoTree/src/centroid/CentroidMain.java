@@ -18,12 +18,12 @@
 package centroid;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
-import org.apache.commons.math3.analysis.solvers.BrentSolver;
-import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
+import org.apache.commons.math3.analysis.polynomials.*;
+import org.apache.commons.math3.analysis.solvers.*;
 
 import distanceAlg1.*;
 import distances.Analysis;
@@ -203,11 +203,10 @@ public class CentroidMain {
 		}
 			
 		if (p >= 2) {
-			getPMeanViaRandPermCauchy(trees,p,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+			getPMeanViaRandPermCauchy(trees,numIter,p,cauchyLength,epsilon,outfile,displayIter,displayStart);
 			System.exit(0);
 		}
-		
-		
+			
 		// algorithm chooses the next tree at random; convergence tested by Cauchy sequence
 		if (algorithm.equals("random") && !twoRuns) {
 			getCentroidViaRandomCauchy(trees,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
@@ -227,7 +226,7 @@ public class CentroidMain {
 			System.out.println("Error:  unknown algorithm");
 			System.exit(1);
 		}
-
+		
 		System.exit(0);
 	}
 	
@@ -243,6 +242,70 @@ public class CentroidMain {
 	 * @param numIter
 	 * @return
 	 */
+	
+	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
+		DecimalFormat d6o = new DecimalFormat("#0.######");
+		Boolean converge = false;
+		int numTrees = trees.length;
+
+		int numNextTree;
+		Random r = new Random();
+		PhyloTree centroid = null;
+		
+		/* Variables for testing for a Cauchy sequence to determine convergence */
+		int cauchyIndex = -1;  // last position in the vector that there is a old centroid at
+		Vector<PhyloTree> oldCentroids = new Vector<PhyloTree>();	  // stores the last 5 centroids form for checking for cauchy sequence		
+
+		
+		// choose a tree at random to start
+		centroid = trees[r.nextInt(numTrees)];			
+	
+		int i = 1;
+		while ((i < numIter) && (!converge)) {
+			numNextTree = r.nextInt(numTrees);
+			centroid =  getGeodesic(centroid, trees[numNextTree],null).getTreeAt((double)1/(i+1),centroid.getLeaf2NumMap(),centroid.isRooted());	
+		
+			// For Cauchy sequence convergence check 
+		
+			if (displayIter > 0) {
+				if ((i%displayIter ==0) &&  (i >= displayStart)) {
+					System.out.println("Iteration " + i + ". Variance, tree: " + d6o.format(variance(centroid,trees)) + ", " + centroid.getNewick(true));
+				}
+			}
+	
+			/* Check for Cauchy sequence to determine convergence. */
+			for(int j = cauchyIndex; j >= 0; j--) {
+				double dist = calcGeoDist(oldCentroids.get(j), centroid);
+				if (dist > epsilon) {
+					// don't have a Cauchy sequence.  
+					// Move all already checked centroids to the front of the queue.
+					for (int k = j; k >= 0; k--) {
+						oldCentroids.remove(k);
+					}
+					break;
+				}
+			}
+			oldCentroids.add(centroid.clone());
+			cauchyIndex = oldCentroids.size() - 1;
+			
+			// Check if we have a Cauchy sequence of right length.
+			if (oldCentroids.size() == cauchyLength ) {
+				converge = true;
+			}
+			i++;
+		} // end while not converged
+
+		displayCauchy("choose tree randomly",i,cauchyLength,epsilon,converge,centroid,trees,outfile);
+		
+		if (converge) {
+			return centroid;
+		}
+		else {
+			return null;
+		}
+
+	}
+	
 	public static PhyloTree getCentroidViaRandPermCauchy(PhyloTree[] trees, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
@@ -305,9 +368,7 @@ public class CentroidMain {
 		}
 	}
 	
-	
-	
-	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
+	public static PhyloTree ho(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -323,7 +384,7 @@ public class CentroidMain {
 		
 		// choose a tree at random to start
 		centroid = trees[r.nextInt(numTrees)];			
-	
+		
 		int i = 1;
 		while ((i < numIter) && (!converge)) {
 			numNextTree = r.nextInt(numTrees);
@@ -523,8 +584,6 @@ public class CentroidMain {
 		}
 		return centroids;
 	}
-	
-	
 	
 	
 	
@@ -788,108 +847,168 @@ public class CentroidMain {
 		}
 		System.out.println();*/
 	}
-	
-	
-	public static PhyloTree getPMeanViaRandPermCauchy(PhyloTree[] trees, int p, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
-		DecimalFormat d6o = new DecimalFormat("#0.######");
-		Boolean converge = false;
-		int numTrees = trees.length;
-		Vector<PhyloTree> oldCentroids = new Vector<PhyloTree>();	  // stores the last 5 centroids form for checking for cauchy sequence		
-			
-		// initialize the coefficients for the polynomial we solve each iteration
-		// make a double[] containing the coefficients
-		// constant, deg 1, deg 2, ...
-		// p d(T_k,x_{k-1})^{p-2} k t^{p-1} +t -1 =0
-		double[] coeffs= new double[p];
-//		coeffs[0] = -1;
-//		coeffs[1] = 1;
-		for(int j = 2; j < p-1; j++) {
-			coeffs[j] = 0;
-		}
-		
-		// initialize the solver
-		//BrentSolver solver = new BrentSolver();
-		LaguerreSolver solver = new LaguerreSolver();
-		
-		/*  Permute the trees for this round. */
-		PhyloTree [] shuffledTrees = permuteTrees(trees);
-			
-		// find the first centroid candidate
-		PhyloTree centroid = shuffledTrees[0];
-		oldCentroids.add(centroid.clone());
-		int cauchyIndex = 0;  // last position in the vector that there is a old centroid at
-			
-		int i = 1;
-		while ((i < numIter ) && (!converge)) {
-			// Shuffle trees if necessary
-			if (i % numTrees == 0) {
-				shuffledTrees = permuteTrees(trees);
-			}
-			
-			// make a double[] containing the coefficients
-			// constant, deg 1, deg 2, ...
-			// p d(T_k,x_{k-1})^{p-2} 1/k t^{p-1} +t -1 =0
-			
-			double d = getGeodesic(centroid,shuffledTrees[i % numTrees],null).getDist();
-			
-			// need to cast for when p = 2, and need to add one (the coeffs[1] = 1 that we initialized)
-			if (p ==2) {
-				coeffs[p-1] = p*Math.pow(d,p)/(double)i + 1;
-			}
-			else {
-				coeffs[p-1] = p*Math.pow(d,p)/(double)i;
-			}
-			coeffs[0] = -Math.pow(d,2);
-			coeffs[1] = Math.pow(d,2);
-			// initialize the polynomial
-			PolynomialFunction func = new PolynomialFunction(coeffs);
-			// arguments are:  max number of iterations (100 suggested), functions, two domain values (min and max)
-			double t = solver.solve(100,func,0,1);
-			
-			
-			if (i < 2000) {
-				System.out.println("p is " + p + ", p-1 coeff is " + coeffs[p-1] + " and t is " + t);
-			}
-			centroid = getGeodesic(centroid, shuffledTrees[i%numTrees],null).getTreeAt((1-t),centroid.getLeaf2NumMap(),centroid.isRooted());		
 
-			if (displayIter > 0) {
-				if ((i%displayIter ==0) &&  (i >= displayStart)) {
-					System.out.println("Iteration " + i + ". Variance, tree: " + d6o.format(variance(centroid,trees)) + ", " + centroid.getNewick(true));
-				}
-			}
+	//A method that determines f(x) for a given point and a given set of points.
+	//Doubles should be sufficient for almost any data set, as they can safely store numbers up to ~1.17*10^308
+	//and P values greater than a few dozen will not return analytically distinguishable results anyway.
+	//However, if this limit is reached, there is an alternate method which uses BigInteger
+	public static double getPSum(PhyloTree[] trees, PhyloTree centroid, int p)
+	{
+		double total = 0;
+		for (int i = 0; i < trees.length; i++)
+		{
+			total = total + Math.pow(getGeodesic(centroid, trees[i], null).getDist(),p);
+		}
+		return total;
+	}
+	
+	//The same method as before, but using BigIntegers to remove the threat of overflows
+	//Overflows were not encountered with all our tested sets, this method is a backup.
+	//The upper limit on a BigInteger is primarily the amount of RAM available.
+	public static BigInteger getPSum(PhyloTree[] trees, PhyloTree centroid, int p, boolean a)
+	{
+		BigInteger total = new BigInteger("0");
+		for (int i = 0; i < trees.length; i++)
+		{
+			total = total.add(new BigInteger(String.valueOf((long)Math.pow(getGeodesic(centroid, trees[i], null).getDist(),100))));
+		}
+		return total;
+	}
+	
+	//(PhyloTree[] trees, PhyloTree centroid, int i, int p, int cauchyLength, double epsilon, int displayIter, int displayStart)
+	// This method uses a formula published by Miroslav Bacak.
+	// For readability, the formula itself will not be explained in comments here.
+	// Please see additional documentation to understand the formula and its implementation.
+	public static PhyloTree getPMeanViaRandPermCauchy(PhyloTree[] trees, int numIter, int p, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart)
+	{/* initialize all important variables */
+		
+		// It is not necessary to shuffle the trees, but there's no harm in doing it either.
+		PhyloTree [] shuffledTrees = permuteTrees(trees);
+		// set up the cauchy
+		PhyloTree[] oldCentroids = new PhyloTree[cauchyLength];
+		// pick the first point
+		PhyloTree centroid = shuffledTrees[0];
+		oldCentroids[0] = centroid.clone();
+		// Bisecting is the simplest and most efficient solving method
+		BisectionSolver solver = new BisectionSolver();
+		// allocate memory to the coefficients, as well as d and t
+		double[] coeffs= new double[p];
+		double d;
+		double t;
+		// initialize the conditions of the loop
+		if (p < 2) p = 2;
+		int i = 0;
+		int cauchy = 0;
+		boolean converge = false;
+		
+		// ******* DEBUG ******* \\
+		// Initializes an array intended to hold a number of the points being tested.
+		// The first value of the constructor can be adjusted to change the number of points stored.
+		int PCheck = 5000;
+		if (PCheck > numIter) PCheck = numIter;
+		PhyloTree[] printed = new PhyloTree[PCheck];
+		//\ ******* END ******* /\\
+		
+		while (!converge)
+		{
+			// * * * * * * * * * *
+			// * * * STEP 1: * * *
+			// * * * * * * * * * *
+			// Create the polynomial
+			d = getGeodesic(centroid,shuffledTrees[i%trees.length],null).getDist();
+			coeffs[0] = -i*Math.pow(d,2);
+			coeffs[1] = -coeffs[0];
+			if (p == 2) coeffs[1] = 2*Math.pow(d,2)+coeffs[1];
+			else coeffs[p-1] = p*Math.pow(d,p);
 			
-			/* Check for Cauchy sequence to determine convergence. */
+			// * * * * * * * * * *
+			// * * * STEP 2: * * *
+			// * * * * * * * * * *
+			// Solve the function
+			// source documentation claims accuracy does not significantly improve beyond 52 cycles
+			t = solver.solve(52,new PolynomialFunction(coeffs),0.0,1.0);
+
+			// * * * * * * * * * *
+			// * * * STEP 3: * * *
+			// * * * * * * * * * *
+			// Identify the point based on the solution
+			centroid = getGeodesic(centroid, shuffledTrees[i%trees.length],null).getTreeAt((1-t),centroid.getLeaf2NumMap(),centroid.isRooted());		
 			
-			for(int j = cauchyIndex; j >= 0; j--) {
-				double dist = calcGeoDist(oldCentroids.get(j), centroid);
-				if (dist > epsilon) {
-					// don't have a Cauchy sequence.  Move all already checked centroids to the front of the queue.
-					for (int k = j; k >= 0; k--) {
-						oldCentroids.remove(k);
-					}
+			// * * * * * * * * * *
+			// * * * STEP 4: * * *
+			// * * * * * * * * * *
+			// Check the cauchy for convergence
+			for(int j = cauchy; j >= 0; j--)
+			{
+				double dist = calcGeoDist(oldCentroids[j], centroid);
+				if (dist > epsilon)
+				{
+					for (int k = j; k >= 0; k--) oldCentroids[k] = null;
 					break;
 				}
 			}
-			oldCentroids.add(centroid.clone());
-			cauchyIndex = oldCentroids.size() - 1;
+			cauchy = 0;
+			for(int l = 0; l < oldCentroids.length; l++)
+			{
+				if (oldCentroids[l] == null)
+				{
+					oldCentroids[l] = centroid.clone();
+					break;
+				}
+				cauchy++;
+			}
+			//if (cauchy+1 == cauchyLength) converge = true;
 			
-			// Check if we have a Cauchy sequence of the desired length.
-			if (oldCentroids.size() == cauchyLength ) {
+			// * * * * * * * * * * \\
+			// * END OF FUNCTION * \\
+			// * * * * * * * * * * \\
+			// iterate the loop
+			i++;
+			
+			
+			// Used to save the points being checked by the function to an array.
+			if (i <= printed.length) printed[i-1] = oldCentroids[cauchy].clone();
+			
+			//Uses the array of tested points to determine which point minimizes f(x) (from Bacak's formula)
+			else if (i >= numIter)
+			{
+				double min = getPSum(trees, printed[0], p);
+				int dex = 0;
+				
+				for (int z = 1; z < printed.length; z++)
+				{
+					double minTest = getPSum(trees, printed[z], p);
+					if (minTest < min)
+					{
+						min = minTest;
+					}
+				}
+				centroid = printed[dex];
 				converge = true;
 			}
-			i++;
 		}
 		
-		displayCauchy("random permutations of the tree set.",i,cauchyLength,epsilon,converge,centroid,trees,outfile);
-
-		if (converge) {
-			return centroid;
+		if (!converge)
+		{
+			double min = getPSum(trees, printed[0], p);
+			int dex = 0;
+			
+			for (int z = 1; z < printed.length; z++)
+			{
+				double minTest = getPSum(trees, printed[z], p);
+				if (minTest < min)
+				{
+					min = minTest;
+					dex = z;
+				}
+			}
+			
+			centroid = printed[dex];
 		}
-		else {
-			return null;
-		}
+		
+		displayCauchy("PMean calculation for P = " + p,i,cauchyLength,epsilon,converge,centroid,trees,outfile);
+		
+		if (converge) return centroid;
+		else  return null;
 	}
-	
 }
-
-
