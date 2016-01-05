@@ -21,9 +21,9 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+/*import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
-import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
+import org.apache.commons.math3.analysis.solvers.LaguerreSolver;*/
 
 import distanceAlg1.*;
 import distances.Analysis;
@@ -40,7 +40,8 @@ public class CentroidMain {
 		System.out.println("Command line syntax:");
 		System.out.println("java -jar sturmMean.jar [options] treefile");
 		System.out.println("Optional arguments:");	
-		System.out.println("\t -a <algorithm> \t algorithm to choose the next tree.  Choices are \"random\" and \"rand_perm\". ");
+		System.out.println("\t -a <algorithm> \t algorithm to choose the next tree.  Choices are \"random\" and \"rand_perm\".");
+		// hidden algorithm choice of fixed_order
 		System.out.println("\t -c <length> \t length of Cauchy sequence for determining convergence.  Default is 5.");
 		System.out.println("\t -e <epsilon> \t set the value of epsilon used to determine convergence.");
 		System.out.println("\t -f <epsilonFactor> \t calculate the value of epsilon automatically, using the specified factor. Default for the factor is 5000");
@@ -189,6 +190,11 @@ public class CentroidMain {
 			System.out.println("Mean tree is " + trees[0]);
 			System.exit(0);
 		}
+		
+		if (algorithm.equals("fixed_order")) {
+			getCentroidViaFixedOrder(trees,outfile);
+			System.exit(0);
+		}
 
 		
 		PhyloTree star = Analysis.getStarTree(trees);	
@@ -202,8 +208,8 @@ public class CentroidMain {
 			epsilon = getEpsilon(trees,epsilonFactor);  // info about this printed in getEpsilon method
 		}
 			
-		if (p >= 2) {
-			getPMeanViaRandPermCauchy(trees,p,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
+		if (p > 2) {
+//			getPMeanViaRandPermCauchy(trees,p,numIter,cauchyLength,epsilon,outfile,displayIter,displayStart);
 			System.exit(0);
 		}
 		
@@ -304,7 +310,6 @@ public class CentroidMain {
 			return null;
 		}
 	}
-	
 	
 	
 	public static PhyloTree getCentroidViaRandomCauchy(PhyloTree[] trees, long numIter, int cauchyLength, double epsilon, String outfile, int displayIter, int displayStart) {
@@ -490,6 +495,39 @@ public class CentroidMain {
 			return null;
 		}
 	}
+	
+	
+	/**  Uses Sturm's algorithm to get the centroid of trees.
+	 *   For each "round" of Sturm's algorihtm, permutes the array trees and uses the trees in that order.  Repeat for each round.
+	 *   Convergence iff there are cauchyLength consecutive trees within geodesic distance epsilon of each other.
+	 *   Returns null if no convergence in numIter iterations.  Otherwise returns the centroid.
+	 *   
+	 * 
+	 * @param trees
+	 * @param epsilon
+	 * @param numIter
+	 * @return
+	 */
+	public static PhyloTree getCentroidViaFixedOrder(PhyloTree[] trees,String outfile) {
+		DecimalFormat d6o = new DecimalFormat("#0.######");
+		int numTrees = trees.length;
+			
+		// find the first centroid candidate
+		PhyloTree centroid = trees[0];
+			
+		int i = 1;
+		while (i < trees.length ) {
+			
+			centroid =  getGeodesic(centroid, trees[i % numTrees],null).getTreeAt((double)1/(i+1),centroid.getLeaf2NumMap(),centroid.isRooted());	
+			i++;
+		}
+		
+		System.out.println("Tree is: ");
+		System.out.println(centroid.getNewick(true));
+		
+		return centroid;
+	}
+	
 	
 	/** 
 	 *  Removes elements from the front of the vector so that all remaining elements
@@ -790,7 +828,7 @@ public class CentroidMain {
 	}
 	
 	
-	public static PhyloTree getPMeanViaRandPermCauchy(PhyloTree[] trees, int p, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
+/*	public static PhyloTree getPMeanViaRandPermCauchy(PhyloTree[] trees, int p, int numIter, int cauchyLength, double epsilon,String outfile, int displayIter, int displayStart) {
 		DecimalFormat d6o = new DecimalFormat("#0.######");
 		Boolean converge = false;
 		int numTrees = trees.length;
@@ -812,7 +850,7 @@ public class CentroidMain {
 		LaguerreSolver solver = new LaguerreSolver();
 		
 		/*  Permute the trees for this round. */
-		PhyloTree [] shuffledTrees = permuteTrees(trees);
+/*		PhyloTree [] shuffledTrees = permuteTrees(trees);
 			
 		// find the first centroid candidate
 		PhyloTree centroid = shuffledTrees[0];
@@ -860,7 +898,7 @@ public class CentroidMain {
 			
 			/* Check for Cauchy sequence to determine convergence. */
 			
-			for(int j = cauchyIndex; j >= 0; j--) {
+/*			for(int j = cauchyIndex; j >= 0; j--) {
 				double dist = calcGeoDist(oldCentroids.get(j), centroid);
 				if (dist > epsilon) {
 					// don't have a Cauchy sequence.  Move all already checked centroids to the front of the queue.
@@ -888,7 +926,8 @@ public class CentroidMain {
 		else {
 			return null;
 		}
-	}
+	}*/
+	
 	
 }
 
