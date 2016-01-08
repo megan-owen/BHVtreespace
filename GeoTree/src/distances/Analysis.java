@@ -561,6 +561,13 @@ public class Analysis {
     			endRayAngles(trees, otherTrees, outfileStream);
     			System.exit(0);
     		}
+    		// gets the log map coordinates for the list of trees relative to the given tree
+    		else if (algorithm.equals("logmap")) {
+    			getLogMap(trees,otherTrees[0],outfileStream);
+    			System.exit(0);
+    		}
+    		
+    		
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
     			System.exit(1);
@@ -609,6 +616,7 @@ public class Analysis {
 		System.out.println("\t topology_count \t returns a file containing information about the topologies in treefile");
 		System.out.println("\t split_count \t returns a file containing information about the splits appearing in the trees in treefile");
 		System.out.println("\t endray_angles \t returns a file with four lines corresponding to the angles made by the endrays of the two geodesics given (one in treefile another in otherTreeFile)");
+		System.out.println("\t logmap \t returns a file with the logmap coordinates of the trees in treefile centred at the first tree in otherTreeFile");
 	}
 	
 	
@@ -995,6 +1003,21 @@ public class Analysis {
 			if (outFileStream!=null) outFileStream.println(ne);
 			System.out.println(ne);	
 		}
+		if (outFileStream!=null) outFileStream.close();
+	}
+	
+	// Computes the log map for all trees in the tree file
+	public static void getLogMap(PhyloTree[] trees, PhyloTree centreTree, PrintWriter outFileStream) {
+		for (PhyloTree tree: trees) {
+			double[] coords = centreTree.getLogMap(tree);
+			if (outFileStream != null) {
+				for (double coord: coords) {
+					outFileStream.print(coord + " ");
+				}
+				outFileStream.println();
+			}
+		}
+		
 		if (outFileStream!=null) outFileStream.close();
 	}
 }
