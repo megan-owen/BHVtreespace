@@ -2,9 +2,7 @@ package distanceAlg1;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class EdgeAttributeTest {
 	private static EdgeAttribute a1;
@@ -19,7 +17,7 @@ public class EdgeAttributeTest {
 
 	
 	// Set up before each test.
-	@Before
+	@BeforeEach
 	public void setUp() {
 		
 		a1 = new EdgeAttribute( new double[] {1.0});
@@ -33,7 +31,7 @@ public class EdgeAttributeTest {
 		c1 = new EdgeAttribute(new double[] {0.945,0,-7.129463692});
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		a1 = null;
 		a1_same = null;

@@ -2,9 +2,7 @@ package distances;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import distanceAlg1.PhyloTree;
 
@@ -20,7 +18,7 @@ public class PresentationTest {
 	private static PhyloTree[] trees;
 	private static PhyloTree[] treesWithNull;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		buffer = new StringWriter();    // will wrap in a PrintWriter
 		outStream = new PrintWriter(buffer);  // wraps the StringWriter
@@ -37,7 +35,7 @@ public class PresentationTest {
 		treesWithNull[2] = t2;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		buffer = null;
 		outStream = null;

@@ -2,9 +2,7 @@ package centroid;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import distanceAlg1.*;
 import distances.Analysis;
@@ -27,7 +25,7 @@ public class CentroidMainTest {
 	private static PhyloTree[] squareTrees;
 	private static PhyloTree squareMean;
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 	
 		// example of triangle in three quadrants, where mean is Euclidean mean
@@ -52,7 +50,7 @@ public class CentroidMainTest {
 		
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		
 		triangleTrees = null;

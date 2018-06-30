@@ -6,13 +6,11 @@ import distanceAlg1.Geodesic;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class PCATest {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// Trees from triangle example in the SturmMean manual
 		PhyloTree r1 = new PhyloTree("((a:1,b:1):1,(d:1,e:1):2);",true);
@@ -36,7 +34,7 @@ public class PCATest {
 		
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 	}
 

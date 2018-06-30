@@ -3,10 +3,7 @@ package compGeo;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.*;
 
 import distanceAlg1.PhyloTree;
 
@@ -29,7 +26,7 @@ public class CompGeoMainTest {
 	
 	
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		t3_1 = new PhyloTree("((a:1,b:1):1,c:1);",true);  
 		t3_2 = new PhyloTree("((a:1,c:1):1,b:1);",true);  
@@ -51,7 +48,7 @@ public class CompGeoMainTest {
 		fourLeafTreesVect.add(t4_3);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		t3_1 = null;
 		t3_2 = null;

@@ -1,10 +1,9 @@
 package distances;
 
+import org.junit.jupiter.api.*;
+
 import static org.junit.Assert.*;
 
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
 import distanceAlg1.*;
 
 import java.util.*;
@@ -34,7 +33,7 @@ public class AnalysisTest {
 //	public static void setUpBeforeClass() throws Exception {
 	
 	/* Set up before each test. (To avoid one test interfering with another.) */
- @Before
+ @BeforeEach
 	public void setUp() {
 		t1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.4):3,F:1):1);", true);  // rooted
 		t2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted
@@ -76,7 +75,7 @@ public class AnalysisTest {
 	}
 	
 	/* Tear down after each test. */
-	@After
+	@AfterEach
 	public void tearDown() {
 		t1 = null;
 		t2 = null;

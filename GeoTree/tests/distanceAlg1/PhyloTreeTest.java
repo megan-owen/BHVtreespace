@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 
 import java.util.Vector;
 
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
+import org.junit.jupiter.api.*;
 
 import distanceAlg1.PhyloTree;
 import java.util.*;
@@ -41,7 +39,7 @@ public class PhyloTreeTest {
 	
 //	@BeforeClass
 //	public static void setUpBeforeClass() throws Exception {
-	@Before
+	@BeforeEach
 	public void setUp() {
 		t1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.5):3,F:1):1);", true);  // rooted, splits:  AB|CDEF0, ABC|DEF0, DE|ABCF0, DEF|ABC0
 		t2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted, no edges in common with t1, multi
@@ -81,7 +79,7 @@ public class PhyloTreeTest {
 
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		t1 = null;
 		t2 = null;

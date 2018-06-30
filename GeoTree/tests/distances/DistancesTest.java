@@ -3,9 +3,7 @@ import distanceAlg1.PhyloTree;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class DistancesTest {
 	private static PhyloTree t1;
@@ -19,7 +17,7 @@ public class DistancesTest {
 	private static PhyloTree star2;
 	
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		t1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.5):3,F:1):1);", true);  // rooted
 		t2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted
@@ -34,7 +32,7 @@ public class DistancesTest {
 		star2 = new PhyloTree("(C:2,A:1,B:1,D:1,E:1,F:1);",true);
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		t1 = null;
 		t2 = null;

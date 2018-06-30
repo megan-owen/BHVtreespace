@@ -3,9 +3,7 @@ package distanceAlg1;
 import static org.junit.Assert.*;
 
 //import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
+import org.junit.jupiter.api.*;
 
 
 public class PhyloTreeEdgeTest {
@@ -18,7 +16,7 @@ public class PhyloTreeEdgeTest {
 //	public static void setUpBeforeClass() throws Exception {
 
 	// Set up before each test.
-	@Before
+	@BeforeEach
 	public void setUp() {
 		t1 = new PhyloTree("((A:1,B:1):1,C:1);", true);	// rooted
 		t1_different_length = new PhyloTree("((A:1,B:1):8,C:1);", true);	// rooted
@@ -26,7 +24,7 @@ public class PhyloTreeEdgeTest {
 		t3 = new PhyloTree("(C:1,(A:1,B:1):1);", true);	// rooted
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		t1 = null;
 		t1_different_length = null;

@@ -2,9 +2,7 @@ package distanceAlg1;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import polyAlg.*;
 
@@ -19,7 +17,7 @@ public class RatioSequenceTest {
 	
 	private static RatioSequence rs_v1v2;
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		s1 = new PhyloTree("(((b:1,c:1):1,a:1):1,d:1);",true);   //rooted; splits bc|ad0, abc|d0
 		s2 = new PhyloTree("((c:1,d:1):1,(a:1,b:1):1);",true);	 // rooted; splits cd|ab0, ab|cd0
@@ -33,7 +31,7 @@ public class RatioSequenceTest {
 		
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		s1 = null;
 		s2 = null;	

@@ -7,9 +7,7 @@ import java.util.*;
 import distanceAlg1.*;
 import static polyAlg.PolyMain.calcGeoDist;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class PolyMainTest {
 	private static PhyloTree t1;
@@ -26,7 +24,7 @@ public class PolyMainTest {
 	private static PhyloTree s2;
 	
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// reset global variables holding subtrees
 		PolyMain.aTreesNoCommonEdges = new Vector<PhyloTree>();
@@ -60,7 +58,7 @@ public class PolyMainTest {
 		
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		t1 = null;
 		t1_one_diff_edge = null;

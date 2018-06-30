@@ -7,9 +7,7 @@ import java.util.Vector;
 import distanceAlg1.PhyloTree;
 import polyAlg.PolyMain;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class GeodesicTest {
 	private static PhyloTree u1;
@@ -32,7 +30,7 @@ public class GeodesicTest {
 	private static PhyloTree t4_2;
 	
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		u1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.5):3,F:1):1);", true);  // rooted; splits AB|CDEF0, ABC|DEF0, DE|ABCF0, DEF|ABC0
 		u2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted; splits AF|BCDE0, ADF|BCE0, CE|ABDF0, ABDF|CE0 
@@ -60,7 +58,7 @@ public class GeodesicTest {
 	
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		t1 = null;
 		t2 = null;
