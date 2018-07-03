@@ -371,6 +371,7 @@ public class Analysis {
 		String treeFile = "";
 		String otherTreeFile = null;
 		Boolean rooted = true;
+		Boolean interiorEdgesOnly = false;
 		String algorithm = "";
 		PhyloTree[] otherTrees = null;
 		double epsilon = -1;
@@ -414,6 +415,7 @@ public class Analysis {
 				for (int j = 1; j<args[i].length(); j++) {
 					switch(args[i].charAt(j)) {						
 					// display help
+					case 'i': interiorEdgesOnly = true; break;
 					case 'h': displayHelp(); System.exit(0); break;
 					case 'u': rooted = false; break;
 					
@@ -466,7 +468,7 @@ public class Analysis {
     				System.exit(1);
     			}
     			
-    			computeAllGeodesicsBtwLists(trees,otherTrees,outfile);
+    			computeAllGeodesicsBtwLists(trees,otherTrees,outfile, interiorEdgesOnly);
     			
     			System.exit(0);
     		}
@@ -489,7 +491,12 @@ public class Analysis {
     		else if ( algorithm.equals("project_distance")) {
     			Geodesic geo = getGeodesic(trees[0],trees[1],null);
     			PhyloTree projection = otherTrees[0].projectToGeo(geo,epsilon);
-    			double dist = calcGeoDist(otherTrees[0],projection);
+    			double dist = -1;
+    			if (interiorEdgesOnly) {
+    				dist = PolyMain.getGeodesic(otherTrees[0],projection, null).getInteriorEdgesOnlyDist();
+    			} else {
+    				dist = calcGeoDist(otherTrees[0],projection);
+    			}
     			Presentation.printStringToFile(""+ dist, outfile);
     			System.exit(0);
     		}
@@ -598,6 +605,7 @@ public class Analysis {
 		System.out.println("\t -a <algorithm> \t specifies what to compute");
 		System.out.println("\t -e <epsilon> \t specifies epsilon, if needed.");
 		System.out.println("\t -f <otherTreeFile> \t reads in an additional tree file");
+		System.out.println("\t -i \t computes all geodesics using only the interior edges (only implemented for gtp_twofiles and project_distance)");
 		System.out.println("\t -o <outfile> \t store the output in the file <outfile>.  Default is output.txt");
 		System.out.println("\t -s <sample num> \t a number used for either the sample_point or sample_along_geo algorithms.");
 		System.out.println("\t -u \t trees are unrooted. Default is trees are rooted.");
@@ -756,7 +764,7 @@ public class Analysis {
     		for (int i = 1; i < splits.size(); i++) {
     			int thisLen = ((ArrayList) splits.get(i)).size();
     			if (thisLen > maxLength) {
-    				maxLength = thisLen;
+    				maxLength = thisLen; 
     				maxIndex = i;
     			}	
     		}
@@ -794,7 +802,7 @@ public class Analysis {
 	 * @param rooted
 	 * @param outfile
 	 */
-	public static void computeAllGeodesicsBtwLists(PhyloTree[] trees,PhyloTree[] otherTrees,String outFileName) {
+	public static void computeAllGeodesicsBtwLists(PhyloTree[] trees,PhyloTree[] otherTrees,String outFileName, Boolean interiorEdgesOnly) {
 		int numTrees = trees.length;
 		int numOtherTrees = otherTrees.length;
 	    
@@ -808,7 +816,12 @@ public class Analysis {
 	 
 	    	for (int i = 0; i < numTrees ; i++) {
 	    		for (int j = 0; j< numOtherTrees; j++) {
-	    			double dist = PolyMain.getGeodesic(trees[i], otherTrees[j], "geo_" + i + "_" + j).getDist();
+	    			double dist = -1;
+	    			if (interiorEdgesOnly) {
+	    				dist = PolyMain.getGeodesic(trees[i], otherTrees[j], "geo_" + i + "_" + j).getInteriorEdgesOnlyDist();
+	    			} else {
+	    				dist = PolyMain.getGeodesic(trees[i], otherTrees[j], "geo_" + i + "_" + j).getDist();
+	    			}
 	    			outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(dist, 6));
 				}
 				outputStream.println();
