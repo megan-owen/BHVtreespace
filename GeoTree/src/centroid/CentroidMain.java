@@ -275,7 +275,9 @@ public class CentroidMain {
 
 			if (displayIter > 0) {
 				if ((i%displayIter ==0) &&  (i >= displayStart)) {
-					System.out.println("Iteration " + i + ". Variance, tree: " + d6o.format(variance(centroid,trees)) + ", " + centroid.getNewick(true));
+					// temporarily commented out to not print variance
+					//					System.out.println("Iteration " + i + ". Variance, tree: " + d6o.format(variance(centroid,trees)) + ", " + centroid.getNewick(true));
+					System.out.println(centroid.getNewick(true));
 				}
 			}
 			

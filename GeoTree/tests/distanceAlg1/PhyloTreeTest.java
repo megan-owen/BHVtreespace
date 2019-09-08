@@ -20,6 +20,7 @@ public class PhyloTreeTest {
 	private static PhyloTree t3;
 	private static PhyloTree multi;
 	private static PhyloTree multi_unrooted;
+	private static PhyloTree multi_unrooted_2;
 	private static PhyloTree multi_len3;
 	private static PhyloTree t1_multi;
 	private static PhyloTree t1_one_off;
@@ -64,6 +65,10 @@ public class PhyloTreeTest {
 		multi = new PhyloTree("(A:1,B:1,(C:1,D:1):1,(E:1,F:1):1);",true); //rooted, multifurcating, splits: CD|ABEF0, EF|ABCD0
 		
 		multi_unrooted = new PhyloTree("(Alligator:9.45,(Bobcat:0.0034,Camel:2.3,Dromedary:11):0.789,(Elephant:0.00023,Fox:7.2):7);", false);
+					// splits: BCD|AEF, EF|ABCD
+		multi_unrooted_2 = new PhyloTree("(Alligator:9.45,Bobcat:0.0034,(Camel:2.3,Dromedary:11):0.789,(Elephant:0.00023,Fox:7.2):7);", false);
+					// splits:  CD|ABEF, EF|ABCD
+					// same edge lengths as multi_unrooted
 	
 		multi_len3 = new PhyloTree("(aa:[4 2 9],(bb:[-2.4 1 0],(cc:[1 1 1.4],dd:[-1 2 3],(ee:[5.6666 1 2],ff:[2 2 2]):[22 33 44]):[-1 -1 -1.44]):[100 1 1.2]);",true);	
 	
@@ -93,6 +98,7 @@ public class PhyloTreeTest {
 		
 		multi = null;
 		multi_unrooted = null;
+		multi_unrooted_2 = null;
 		multi_len3 = null;
 		
 		s1 = null;
@@ -396,7 +402,32 @@ public class PhyloTreeTest {
 		
 		// Test 7: different trees
 		assertTrue("Test 7 failed; ", !t1.hasSameTopology(t2));
+		
+		// Test 8-14: allow 0 length edges, same tests as 1-7
+		assertTrue("Test 8 failed; ",t1.hasSameTopology(t1,true));
+	
+		assertTrue("Test 9 failed; ", t1.hasSameTopology(t1_equals,true));
+		
+		assertTrue("Test 10 failed; ", t1.hasSameTopology(t1_different_internal_lengths,true));
+		
+		assertTrue("Test 11 failed; ", t1.hasSameTopology(t1_different_leaf_lengths,true));
+		
+		assertTrue("Test 12 failed; ", !s1.hasSameTopology(s1_different_leaves,true));
+		
+		assertTrue("Test 13 failed; ", s1.hasSameTopology(s1_equals,true));
+		
+		assertTrue("Test 14 failed; ", !t1.hasSameTopology(t2,true));
+		
+		// Test 15 - 16: missing a split in one of the trees
+		assertTrue("Test 15 failed; ", t1.hasSameTopology(t1_multi,true));
+		assertTrue("Test 16 failed; ", t1_multi.hasSameTopology(t1,true));
+		
+		// Test 17 - 18: unrooted, missing different splits in each tree
+		assertTrue("Test 17 failed; ", multi_unrooted.hasSameTopology(multi_unrooted_2,true));
+		assertTrue("Test 18 failed; ", multi_unrooted_2.hasSameTopology(multi_unrooted,true));
 
+		
+		
 	}
 	@Test 
 	public void testDotProduct() {

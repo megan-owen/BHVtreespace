@@ -365,19 +365,49 @@ try{  // for stringIndexOutOfBoundsException
 		return true;
 	}
 	
-	
-	public Boolean hasSameTopology(PhyloTree t) {
-		Vector<Bipartition> splitSet1 = this.getSplits();
-		Vector<Bipartition> splitSet2 = t.getSplits();
-		
+	/**  Returns true if the two trees have the same edges.
+	 * 	 If the parameter allowZeroEdges is true, then the topologies are
+	 *   compared allowing for 0 length edges.
+	 * 
+	 * @param t
+	 * @param allowZeroEdges
+	 * @return
+	 */
+	public Boolean hasSameTopology(PhyloTree t, Boolean allowZeroEdges) {
+		// Check the leaves are the same in both trees
 		for (int i = 0; i < this.leaf2NumMap.size(); i++) {
 			if (!(this.leaf2NumMap.get(i).equals(t.leaf2NumMap.get(i)))) {
 				return false;
 			}
 		}
 		
-		return splitSet1.containsAll(splitSet2) && splitSet2.containsAll(splitSet1);
+		if (allowZeroEdges) {
+			// Check if any edges in this tree are incompatible with the edges in t
+			// We don't have to get the opposite direction, since if an edge of t was
+			// incompatible with an edge of this, then an edge of this is incompatible 
+			// with an edge of t.
+			return this.getEdgesIncompatibleWith(t).size() == 0;
+		}
+		else {
+			// No zero length edges are allowed, so must check the splits are
+			// exactly the same.
+			Vector<Bipartition> splitSet1 = this.getSplits();
+			Vector<Bipartition> splitSet2 = t.getSplits();
+			
+			return splitSet1.containsAll(splitSet2) && splitSet2.containsAll(splitSet1); 
+		}
 	}
+	
+	
+	/** Overlaod hasSameTopology to only consider non-zero edges in both trees.
+	 * 
+	 * @param t
+	 * @return
+	 */
+	public Boolean hasSameTopology(PhyloTree t) {
+		return hasSameTopology(t,false);
+	}
+	
 	
 	/** Returns sum of product of the common edges
 	 * 
@@ -519,6 +549,7 @@ try{  // for stringIndexOutOfBoundsException
 	 */
 	public Vector<PhyloTreeEdge> getEdgesIncompatibleWith(PhyloTree t) {
 		Vector<PhyloTreeEdge> incompEdges = new Vector<PhyloTreeEdge>();
+		
 		
 		// if the two trees do not have the same leaf2NumMap
 		if (!(this.getLeaf2NumMap().equals(t.getLeaf2NumMap()))){
@@ -1081,7 +1112,7 @@ try{  // for stringIndexOutOfBoundsException
 	/**  Get the direction vector from this tree to tree t.
 	 *   This is the direction of the geodesic leaving from this tree.
 	 *   TODO:  This is not normalized.
-	 *   TODO:  For now, this tree must be binary.
+	 *   TODO:  For now, this tree must be binary or all its branches must be
 	 * @param t
 	 * @return
 	 */

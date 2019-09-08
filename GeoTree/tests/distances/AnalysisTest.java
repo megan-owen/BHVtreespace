@@ -35,14 +35,14 @@ public class AnalysisTest {
 	/* Set up before each test. (To avoid one test interfering with another.) */
  @BeforeEach
 	public void setUp() {
-		t1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.4):3,F:1):1);", true);  // rooted
-		t2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted
+		t1 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,E:0.4):3,F:1):1);", true);  // rooted: AB|CDEF0, ABC|DEF0, DE|ABCF0, EDF|ABC0
+		t2 = new PhyloTree("((B:1,((A:1,F:1):1,D:1):2):1,(C:1,E:1):1);", true);  // rooted: AF|BCDE0, ADF|BCE0, ABDF|CE0, CE|ABDF0
 		t3 = new PhyloTree("((((C:1,B:1):1,A:1):1,E:1):1,(D:1,F:1):1);", true);  // rooted; split ABC in common with t1
 		
 		t1_noCommon = new PhyloTree("(C:1,(A:1,B:1):1,((D:1,E:0.4):3,F:1):1);", true);  // rooted;  t1 with split ABC removed
 		t3_noCommon = new PhyloTree("(((C:1,B:1):1,A:1,E:1):1,(D:1,F:1):1);", true);  // rooted; t3 with split ABC removed 
 		
-		multi = new PhyloTree("(A:1,B:1,(C:1,D:1):1,(E:1,F:1):1);",true); //rooted, multifurcating
+		multi = new PhyloTree("(A:1,B:1,(C:1,D:1):1,(E:1,F:1):1);",true); //rooted, multifurcating: CD|ABEF, EF|ABCD
 		
 		multi_len3 = new PhyloTree("(A:[4 2 9],(B:[-2.4 1 0],(C:[1 1 1.4],D:[-1 2 3],(E:[5.6666 1 2],F:[2 2 2]):[22 33 44]):[-1 -1 -1.44]):[100 1 1.2]);",true);
 		t1_len3 = new PhyloTree("((C:[1 1 1],(A:[1 1 1],B:[1 1 1]):[1 1 1]):[2 2 2],((D:[1 1 1],E:[0.4 0.4 0.4]):[1 1 1],F:[1 1 1]):[1 1 1]);", true);
@@ -99,7 +99,7 @@ public class AnalysisTest {
 	public void testGetCommonSplits() {
 		assertNull("Test 1 (tree array empty) failed", Analysis.getCommonSplits(treesEmpty));
 		
-		assertEquals("Test 2 (no common edges) failed", 1, Analysis.getCommonSplits(treesNoCommonEdges).size());
+		assertEquals("Test 2 (no common edges) failed", 0, Analysis.getCommonSplits(treesNoCommonEdges).size());
 		
 		Bipartition split = new Bipartition("111000");		
 		
