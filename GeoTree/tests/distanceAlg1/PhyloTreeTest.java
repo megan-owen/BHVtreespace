@@ -426,6 +426,11 @@ public class PhyloTreeTest {
 		assertTrue("Test 17 failed; ", multi_unrooted.hasSameTopology(multi_unrooted_2,true));
 		assertTrue("Test 18 failed; ", multi_unrooted_2.hasSameTopology(multi_unrooted,true));
 
+		// Test 19 - 22:  repeat tests 15-18 but where 0 length edges can't count
+		assertTrue("Test 19 failed; ", !t1.hasSameTopology(t1_multi,false));
+		assertTrue("Test 20 failed; ", !t1_multi.hasSameTopology(t1,false));
+		assertTrue("Test 21 failed; ", !multi_unrooted.hasSameTopology(multi_unrooted_2,false));
+		assertTrue("Test 22 failed; ", !multi_unrooted_2.hasSameTopology(multi_unrooted,false));
 		
 		
 	}
