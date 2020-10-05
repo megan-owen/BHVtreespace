@@ -437,14 +437,14 @@ try{  // for stringIndexOutOfBoundsException
 	 * @return
 	 * */
 	public double angleFormedWith(PhyloTree tree) {
-		return Math.acos(this.dotProduct(tree) / (this.getDistanceFromOriginNoLeaves()*tree.getDistanceFromOriginNoLeaves())); 
+		return Math.acos(this.dotProduct(tree) / (this.getDistanceFromOrigin(false)*tree.getDistanceFromOrigin(false))); 
 	} 	
 	
 	/* * Normalizes so that the vector of all edges (both internal and ones ending in leaves) has length 1.
 	 * 
 	 */
 	public void normalize() {
-		double vecLength = getDistanceFromOrigin();
+		double vecLength = getDistanceFromOrigin(true);
 		
 		// divide by the length of the split length vector to normalize
 		for (int i =0; i < leafEdgeAttribs.length; i++) {
@@ -470,32 +470,20 @@ try{  // for stringIndexOutOfBoundsException
 	 * 
 	 * @return
 	 */
-	public double getDistanceFromOrigin() {
+	public double getDistanceFromOrigin(boolean includeLeaves) {
 		double dist = 0;
 		for (int i = 0; i< edges.size(); i++) {
 			dist = dist + Math.pow(edges.get(i).getNorm(), 2);
 		}
 		
-		for (int i = 0; i < leafEdgeAttribs.length; i++) {
-			dist = dist + Math.pow(leafEdgeAttribs[i].norm(),2);
+		if(includeLeaves) {
+			for (int i = 0; i < leafEdgeAttribs.length; i++) {
+				dist = dist + Math.pow(leafEdgeAttribs[i].norm(),2);
+			}
 		}
-					
+		
 		return Math.sqrt(dist);
 	}
-	
-	/**  Returns the distance from this tree to the origin of tree space \ leaf space.  (i.e. doesn't include leaves)
-	 * 
-	 * @return
-	 */
-	public double getDistanceFromOriginNoLeaves() {
-		double dist = 0;
-		for (int i = 0; i< edges.size(); i++) {
-			dist = dist + Math.pow(edges.get(i).getNorm(), 2);
-		}
-					
-		return Math.sqrt(dist);
-	}
-	
 	
 	
 	/** Returns a vector containing edges with the same partition in t1 and t2.  
@@ -549,8 +537,7 @@ try{  // for stringIndexOutOfBoundsException
 	 */
 	public Vector<PhyloTreeEdge> getEdgesIncompatibleWith(PhyloTree t) {
 		Vector<PhyloTreeEdge> incompEdges = new Vector<PhyloTreeEdge>();
-		
-		
+				
 		// if the two trees do not have the same leaf2NumMap
 		if (!(this.getLeaf2NumMap().equals(t.getLeaf2NumMap()))){
 			System.out.println("Error: the two trees do not have the same leaves!");
@@ -565,6 +552,32 @@ try{  // for stringIndexOutOfBoundsException
 			}
 		}
 		return incompEdges;
+	}
+	
+	/** Returns edges in t that are compatible with but not in this tree.
+	 *  Any edge of length 0 is considered not in t.
+	 * 
+	 * @param t
+	 * @return
+	 */
+	public ArrayList<PhyloTreeEdge> getMissingButCompatibleEdgesIn(PhyloTree t) {
+		ArrayList<PhyloTreeEdge> compEdges = new ArrayList<PhyloTreeEdge>();
+		
+		// if the two trees do not have the same leaf2NumMap
+		if (!(this.getLeaf2NumMap().equals(t.getLeaf2NumMap()))){
+			System.out.println("Error: the two trees do not have the same leaves!");
+			System.out.println("First tree's leaves are " + this.getLeaf2NumMap() );
+			System.out.println("Second tree's leaves are " + t.getLeaf2NumMap() );
+			System.exit(1);
+		}
+		
+		for (PhyloTreeEdge e: t.getEdges()) {
+			if (e.isCompatibleWith(getSplits()) && !(getSplits().contains(e.asSplit()))) {
+				compEdges.add(e.clone());
+			}
+		}
+		
+		return compEdges;
 	}
 	
 	
@@ -1109,38 +1122,40 @@ try{  // for stringIndexOutOfBoundsException
 	}
 
 	
-	/**  Get the direction vector from this tree to tree t.
+	/**  Get the direction vector from this tree to tree t. That is, this tree is the base tree.
+	 *   If tree t is in another orthant, then we use the tree on the first boundary from this tree to t.
 	 *   This is the direction of the geodesic leaving from this tree.
+	 *   
+	 *  Coordinates will be in the order:  
+	 *	1) all internal edges in base tree   (In the same order as in this tree)
+	 *	2) internal edges in t (or the first boundary tree) not in base tree
+	 *	3) all leaf edges
 	 *   TODO:  This is not normalized.
-	 *   TODO:  For now, this tree must be binary or all its branches must be
 	 * @param t
 	 * @return
 	 */
 	public double[] getDirectionTo(PhyloTree t) {
-		int numCoords = numEdges() + numLeaves();
+		// if tree t doesn't share an orthant with this tree
+		if (!this.hasSameTopology(t, true)) {
+			t = Geodesic.getBoundaryTrees(this,t).get(0);
+		}
+		
+		// count the number of internal edges in t, not in this tree, but compatible with it
+		ArrayList<PhyloTreeEdge> compatibleButNotInEdges = getMissingButCompatibleEdgesIn(t);
+		int numMissingEdges = compatibleButNotInEdges.size();
+		
+		
+		int numCoords = numEdges() + numLeaves() + numMissingEdges;
 		int dimAttrib = this.getDimAttribs();
 		double[] coords = new double[numCoords*dimAttrib];
 		
-		// Check this tree is binary
-		// If not, return error.
-		if (!this.isBinary()) {
-			System.out.println("Error: cannot compute the direction to a non-binary tree " + getNewick(true));
-			System.exit(1);
-		}
 		
-		// if tree t doesn't have the same topology, get the boundary tree
-		if (!this.hasSameTopology(t)) {
-			// if t is on the boundary of this tree's orthant, then it is actually ok
-			if (!this.getSplits().containsAll(t.getSplits())) {
-				// otherwise get the boundary tree
-				t = Geodesic.getBoundaryTrees(this,t).get(0);
-			}
-		}
-		
-		// Coordinates will be in the order:  all internal edges, then all leaf edges
-		// (In the same order as in this tree)
+		// Coordinates will be in the order:  
+		// 1) all internal edges in base tree   (In the same order as in this tree)
+		// 2) internal edges in t not in base tree but compatible with it
+		// 3) all leaf edges
 		int i = 0;
-		// internal edges
+		// internal edges in base (this) tree
 		for (PhyloTreeEdge edge: getEdges()) {
 			// if edge is in t, add in the difference
 			if (t.getSplits().contains(edge.asSplit())) {
@@ -1159,8 +1174,21 @@ try{  // for stringIndexOutOfBoundsException
 				}
 			}
 		}
+		
+		// internal edges in t and compatible with base tree (this), but not in base tree
+		for (PhyloTreeEdge edge: compatibleButNotInEdges) {
+			// since the edge is all 0 in this tree, the difference is just the edge attribute in t
+			EdgeAttribute attrib = t.getAttribOfSplit(edge);
+			for (int j = 0; j < dimAttrib; j++) {
+				coords[i] = attrib.get(j);
+				i++;
+			}
+		}
+		
 		// leaf edges
 		for (int k = 0; k< numLeaves(); k++ ) {
+			// System.out.println("Leaf is " + t.getLeaf2NumMap());
+			// System.out.println("Attributes are " + t.getLeafEdgeAttribs()[k] + " and " + getLeafEdgeAttribs()[k]);
 			EdgeAttribute attrib = EdgeAttribute.difference(t.getLeafEdgeAttribs()[k],getLeafEdgeAttribs()[k]);
 			for (int j = 0; j < dimAttrib; j++) {
 				coords[i] = attrib.get(j);
@@ -1169,6 +1197,35 @@ try{  // for stringIndexOutOfBoundsException
 		}
 		
 		return coords;
+	}
+	
+	// Returns an array of the non-leaf edges in the order they appear in the log map coordinates.
+	public PhyloTreeEdge[] getLogMapCoordOrder(PhyloTree t) {
+		// if tree t doesn't share an orthant with this tree
+		if (!this.hasSameTopology(t, true)) {
+			t = Geodesic.getBoundaryTrees(this,t).get(0);
+		}
+		
+		// count the number of internal edges in t, not in this tree, but compatible with it
+		ArrayList<PhyloTreeEdge> compatibleButNotInEdges = getMissingButCompatibleEdgesIn(t);
+		int numCoords = numEdges() + compatibleButNotInEdges.size();
+		
+		PhyloTreeEdge[] coordSplits = new PhyloTreeEdge[numCoords];
+		int i = 0;
+		
+		// non-zero edges in base tree
+		for (PhyloTreeEdge edge: getEdges()) {
+			coordSplits[i] = edge.clone();
+			i++;
+		}
+		
+		// internal edges in t and compatible with base tree (this), but not in base tree
+		for (PhyloTreeEdge edge: compatibleButNotInEdges) {
+			coordSplits[i] = edge.clone();
+			i++;
+		}
+		
+		return coordSplits;
 	}
 	
 	/**  Get the dimension of an edge attribute in this trees.

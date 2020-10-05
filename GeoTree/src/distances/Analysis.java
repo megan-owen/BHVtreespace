@@ -54,7 +54,7 @@ public class Analysis {
 		double avg = 0;
 		
 		for(int i = 0; i < trees.length; i++) {
-			avg = avg + trees[i].getDistanceFromOrigin();
+			avg = avg + trees[i].getDistanceFromOrigin(true);
 		}
 		return avg/numTrees;
 	}
@@ -337,7 +337,7 @@ public class Analysis {
 	
 	public static void writeLengths(PhyloTree[] trees, PrintWriter out) {		
     		for (int i = 0; i < trees.length; i++) {
-    			out.println(trees[i].getDistanceFromOrigin());
+    			out.println(trees[i].getDistanceFromOrigin(true));
     		}
     		if (out != null) {
     			out.close();
@@ -574,6 +574,11 @@ public class Analysis {
     			System.exit(0);
     		}
     		
+    		else if (algorithm.equals("logmap_with_order")) {
+    			getLogMapWithOrder(trees[0], otherTrees[0], outfileStream);
+    			System.exit(0);
+    		}
+    		
     		
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
@@ -625,6 +630,7 @@ public class Analysis {
 		System.out.println("\t split_count \t returns a file containing information about the splits appearing in the trees in treefile");
 		System.out.println("\t endray_angles \t returns a file with four lines corresponding to the angles made by the endrays of the two geodesics given (one in treefile another in otherTreeFile)");
 		System.out.println("\t logmap \t returns a file with the logmap coordinates of the trees in treefile centred at the first tree in otherTreeFile");
+		System.out.println("\t logmap_with_order \t returns a file with the logmap coordinates of the first tree in treefile centered at the first tree in otherTreeFile, with the splits corresponding to the coordinates in order below");
 	}
 	
 	
@@ -1020,9 +1026,9 @@ public class Analysis {
 	}
 	
 	// Computes the log map for all trees in the tree file
-	public static void getLogMap(PhyloTree[] trees, PhyloTree centreTree, PrintWriter outFileStream) {
+	public static void getLogMap(PhyloTree[] trees, PhyloTree baseTree, PrintWriter outFileStream) {
 		for (PhyloTree tree: trees) {
-			double[] coords = centreTree.getLogMap(tree);
+			double[] coords = baseTree.getLogMap(tree);
 			if (outFileStream != null) {
 				for (double coord: coords) {
 					outFileStream.print(coord + " ");
@@ -1031,6 +1037,28 @@ public class Analysis {
 			}
 		}
 		
+		if (outFileStream!=null) outFileStream.close();
+	}
+	
+	// Computes the log map with the splits corresponding to the coordinates below from tree1 to tree
+	public static void getLogMapWithOrder(PhyloTree t, PhyloTree baseTree, PrintWriter outFileStream) {
+		// get the log map coordinates
+		double[] coords = baseTree.getLogMap(t);
+		// get the order of the interior splits
+		PhyloTreeEdge[] splits = baseTree.getLogMapCoordOrder(t);
+		
+		if (outFileStream != null) {
+			// print the coordinates
+			for (double coord: coords) {
+				outFileStream.print(coord + " ");
+			}
+			outFileStream.println();
+			
+			// print the splits that correspond to them
+			for (PhyloTreeEdge edge: splits) {
+				outFileStream.println(Bipartition.toStringVerbose(edge.getPartition(), baseTree.getLeaf2NumMap()));
+			}
+		}
 		if (outFileStream!=null) outFileStream.close();
 	}
 }

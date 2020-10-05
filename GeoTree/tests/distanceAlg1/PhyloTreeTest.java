@@ -24,6 +24,7 @@ public class PhyloTreeTest {
 	private static PhyloTree multi_len3;
 	private static PhyloTree t1_multi;
 	private static PhyloTree t1_one_off;
+	private static PhyloTree t1_one_off2;
 	
 	private static PhyloTree s1;
 	private static PhyloTree s2;
@@ -56,6 +57,9 @@ public class PhyloTreeTest {
 		t1_different_leaf_lengths = new PhyloTree("((C:1,(A:9,B:1):1):2,((D:1,E:0.5):3,F:1):1);", true);  // rooted		
 		t1_one_off = new PhyloTree("(((C:1,A:1):1,B:1):2,((D:1,E:0.5):3,F:1):1);", true);  // rooted, same splits as t1, except has 
 																						 // split AC|BDEF0 instead of AB|CDEF0
+		t1_one_off2 = new PhyloTree("((C:1,(A:1,B:1):1):2,((D:1,F:1):2,E:1):1);",true); // rooted, same splits as t1 except has
+																						// split DF|ABCD instead of DE|ABCF
+																						// also edge E has length 1
 
 		
 		
@@ -251,12 +255,15 @@ public class PhyloTreeTest {
 	
 	@Test
 	public void testGetDistanceFromOrigin() {
-		assertEquals("Test 1 (bifurcating, rooted, length 1) failed; ",Math.sqrt(1 + 1 + 1 + 1 + 4 + 1 + 0.25 + 9 + 1 + 1),t1.getDistanceFromOrigin() ,0.00000001);
-		assertEquals("Test 2 (multifurcating, rooted, length 1) failed; ", Math.sqrt(8), multi.getDistanceFromOrigin(),0.00000001);
+		assertEquals("Test 1 (bifurcating, rooted, length 1) failed; ",Math.sqrt(1 + 1 + 1 + 1 + 4 + 1 + 0.25 + 9 + 1 + 1),t1.getDistanceFromOrigin(true) ,0.00000001);
+		assertEquals("Test 2 (multifurcating, rooted, length 1) failed; ", Math.sqrt(8), multi.getDistanceFromOrigin(true),0.00000001);
 		
-		assertEquals("Test 3 (multifurcating, unrooted, length 1) failed; ", Math.sqrt(Math.pow(9.45,2) + Math.pow(0.0034,2) +Math.pow(2.3,2) + 121 + Math.pow(0.789,2) + Math.pow(0.00023,2) + Math.pow(7.2,2) + 49),multi_unrooted.getDistanceFromOrigin(),0.00000001);
+		assertEquals("Test 3 (multifurcating, unrooted, length 1) failed; ", Math.sqrt(Math.pow(9.45,2) + Math.pow(0.0034,2) +Math.pow(2.3,2) + 121 + Math.pow(0.789,2) + Math.pow(0.00023,2) + Math.pow(7.2,2) + 49),multi_unrooted.getDistanceFromOrigin(true),0.00000001);
 	
-		assertEquals("Test 4 (multi, rooted, length >1) failed: ", Math.sqrt( Math.pow(-2.4,2) + 15 + Math.pow(5.6666,2) + 5  + 12 + Math.pow(22,2) + Math.pow(33,2) + Math.pow(44,2) + 2 + Math.pow(1.4,2) + 2 + Math.pow(-1.44,2) + 10001 + Math.pow(1.2,2) + 20 +81), multi_len3.getDistanceFromOrigin(),0.00000001);
+		assertEquals("Test 4 (multi, rooted, length >1) failed: ", Math.sqrt( Math.pow(-2.4,2) + 15 + Math.pow(5.6666,2) + 5  + 12 + Math.pow(22,2) + Math.pow(33,2) + Math.pow(44,2) + 2 + Math.pow(1.4,2) + 2 + Math.pow(-1.44,2) + 10001 + Math.pow(1.2,2) + 20 +81), multi_len3.getDistanceFromOrigin(true),0.00000001);
+	
+		// don't include leaves
+		assertEquals("Test 5 (bifurcating, rooted, no leaves) failed: ", Math.sqrt(1 + 4 + 1 +  9 ),t1.getDistanceFromOrigin(false) ,0.00000001);
 	}
 	
 	@Test
@@ -367,7 +374,7 @@ public class PhyloTreeTest {
 	}
 	
 	@Test
-	public void testGetEdgesNotInCommonWith() {
+	public void testGetEdgesIncompatibleWith() {
 		// Test 1:  rooted, no edges in common
 		assertEquals("Test 1 (rooted, no edges in common) failed;", t1.getEdges(), t1.getEdgesIncompatibleWith(t2));
 		
@@ -378,6 +385,26 @@ public class PhyloTreeTest {
 		Vector<PhyloTreeEdge> answer = TreeDistance.myVectorClonePhyloTreeEdge(t1.getEdges());
 		answer.remove(0);
 		assertEquals("Test 3 (rooted, edge compatible with multifurcating tree) failed;", answer, t1.getEdgesIncompatibleWith(multi));
+	}
+	
+	@Test
+	public void testGetMissingButCompatibleEdgesIn() {
+		// Test 1: both binary trees, no common edges  (should return nothing)
+		assertEquals("Test 1 (rooted, binary, no common edges) failed;", new ArrayList<PhyloTreeEdge>(), t1.getMissingButCompatibleEdgesIn(t2));
+		
+		// Test 2: both binary trees, some common edges (should return nothing)
+		assertEquals("Test 2 (rooted, binary, common edges) failed;", new ArrayList<PhyloTreeEdge>(), t1.getMissingButCompatibleEdgesIn(t3));
+		
+		// Test 3: an edge of t is compatible but not in this tree (should return the edge)
+		Vector<PhyloTreeEdge> answer = TreeDistance.myVectorClonePhyloTreeEdge(t1.getEdges());
+		answer.remove(1);
+		answer.remove(1);
+		answer.remove(1);
+		assertEquals("Test 3 (rooted, returns one edge) failed;", answer, multi.getMissingButCompatibleEdgesIn(t1));
+
+		// Test 4: an edge of this tree is compatible but not in t  (should return nothing)
+		assertEquals("Test 4 (rooted, returns nothing because compatibility is other direction) failed;", new ArrayList<PhyloTreeEdge>(), t1.getMissingButCompatibleEdgesIn(multi));
+
 	}
 
 	@Test
@@ -495,9 +522,18 @@ public class PhyloTreeTest {
 		}
 		
 		// Test 3: rooted, attrib length = 1, trees in same orthant, but second tree is on boundary
+		//                  abc;cd;
 		double[] answer3 = {-1,0,0,0,0,0,0,9,0,0};
 		for (int i = 0; i < answer3.length; i++) {
 			assertEquals("Test 3-" + i + " failed; ", answer3[i], t1.getDirectionTo(t1_multi)[i],0);
+		}
+		
+		
+		// Test 3b: rooted, attrib length = 1, trees in same orthant, but first tree is on boundary
+		//                  abc;cd;
+		double[] answer3b = {0,0,0,1,0,0,0,-9,0,0};
+		for (int i = 0; i < answer3b.length; i++) {
+			assertEquals("Test 3b-" + i + " failed; ", answer3b[i], t1_multi.getDirectionTo(t1)[i],0);
 		}
 		
 		// Test 4: rooted, attrib length = 1, trees in different orthant, geodesic leaves through codim 1 boundary
@@ -517,6 +553,15 @@ public class PhyloTreeTest {
 		for (int i = 0; i < answer6.length; i++) {
 			assertEquals("Test 6-" + i + " failed; ", answer6[i], k1.getDirectionTo(k2)[i],0);
 		}
+		
+		// Test 7: rooted, attrib length = 1, trees in different orthants, base tree is non-binary, 
+		// geodesic passes through two orthants
+		double[] answer7 = {0,-3,0,0.6,0,0,0,-9.0/5*3,0.5/5*3,0};
+		double[] direction = t1_multi.getDirectionTo(t1_one_off2);
+		for (int i = 0; i < answer7.length; i++) {
+			assertEquals("Test 7-" + i + " failed; ", answer7[i], direction[i],0);
+		}
+
 		
 	}
 	@Test
@@ -555,6 +600,13 @@ public class PhyloTreeTest {
 		double[] answer6 = {1,-4,-2,-2,-2,-1,0,0,0,0,0,0,0,0};
 		for (int i = 0; i < answer6.length; i++) {
 			assertEquals("Test 6-" + i + " failed; ", answer6[i], k1.getLogMap(k2)[i],0.0000000001);
+		}
+		
+		// Test 7: rooted, attrib length = 1, trees in different orthants, base tree is non-binary, 
+		// geodesic passes through two orthants
+		double[] answer7 = {0,-5,0,1,0,0,0,-9.0,0.5,0};
+		for (int i = 0; i < answer7.length; i++) {
+			assertEquals("Test 7-" + i + " failed; ", answer7[i], t1_multi.getLogMap(t1_one_off2)[i],0.0000000001);
 		}
 		
 	}

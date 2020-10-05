@@ -362,7 +362,7 @@ public class Distances {
 	
 	
 	public static double si2(PhyloTree t1, PhyloTree t2) {
-		return PolyMain.getGeodesic(t1,t2,null).getDist()/(t1.getDistanceFromOrigin() + t2.getDistanceFromOrigin());
+		return PolyMain.getGeodesic(t1,t2,null).getDist()/(t1.getDistanceFromOrigin(true) + t2.getDistanceFromOrigin(true));
 	}
 }
 

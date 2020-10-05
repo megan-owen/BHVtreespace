@@ -128,6 +128,7 @@ public class CompGeoMain {
 		System.out.println("\t\t which corresponds to");
 		System.out.println("\t\t(1-{w_{i-1})...((1-w_2)*((1 - w_1)*T_1 + w_1*T_2) + w_2*T_3) ... + w_{i-1}*T_i");
 		System.out.println("\t\twhere (1-w)*T_1 + w*T_2, 0<= w <= 1 means the tree w along the geodesic from T_1 to T_2");
+		System.out.println("\t boundary_trees \t computes the trees on the orthant boundaries of the geodesics between all input trees");
 	}
 	
 	
@@ -211,7 +212,7 @@ public class CompGeoMain {
 		}
 		else if (algorithm.equals("boundary_trees")) {
 			Vector<PhyloTree> inputTrees = new Vector<PhyloTree>(Arrays.asList(trees));
-			Vector<PhyloTree> boundaryTrees = getExtremalTrees(inputTrees,numIter);
+			Vector<PhyloTree> boundaryTrees = getBoundaryTrees(inputTrees);
 			
 			for (PhyloTree tree: boundaryTrees) {
 				System.out.println("" + tree.getNewick(true));
