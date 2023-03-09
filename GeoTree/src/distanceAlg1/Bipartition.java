@@ -179,11 +179,22 @@ public class Bipartition implements Cloneable {
 	}
 
 	// Static (for now) because needs to take BitSets, not necessarily Bipartitions
-	// TODO: make instance method
+	// TODO: change all methods that use this static method to the instance one
 	public static String toStringVerbose(BitSet edge, Vector<String> leaf2NumMap) {
 		String toDisplay = "";
 		for (int i = 0; i < edge.length(); i++) {
 			if (edge.get(i)) {
+				toDisplay = toDisplay + leaf2NumMap.get(i) + ",";
+			}
+		}
+		// remove the last ,
+		return toDisplay.substring(0, toDisplay.length()-1);
+	}
+	
+	public String toStringVerbose(Vector<String> leaf2NumMap) {
+		String toDisplay = "";
+		for (int i = 0; i < this.partition.length(); i++) {
+			if (this.partition.get(i)) {
 				toDisplay = toDisplay + leaf2NumMap.get(i) + ",";
 			}
 		}

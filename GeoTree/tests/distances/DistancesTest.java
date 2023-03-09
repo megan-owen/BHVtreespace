@@ -15,6 +15,7 @@ public class DistancesTest {
 	private static PhyloTree multi_2;
 	private static PhyloTree star1;
 	private static PhyloTree star2;
+
 	
 	
 	@BeforeEach
@@ -29,7 +30,7 @@ public class DistancesTest {
 		t5 = new PhyloTree("(A:0.047,B:0.016,(C:0.051,(D:0.064,(E:0.051,(F:0.244,(G:0.216,H:0.805):0.105):0.252):0.036):0.034):0.021);", false);  //unrooted, 100th tree in Rokas file nt_8_stripped.tre
 	
 		star1 = new PhyloTree("(A:1,B:1,C:1,D:1,E:2,F:1);", true);
-		star2 = new PhyloTree("(C:2,A:1,B:1,D:1,E:1,F:1);",true);
+		star2 = new PhyloTree("(C:2,A:1,B:1,D:1,E:1,F:1);",true);	
 	}
 	
 	@AfterEach
@@ -44,6 +45,7 @@ public class DistancesTest {
 		multi_2 = null;
 		star1 = null;
 		star2 = null;
+	
 	}
 	
 	
@@ -93,7 +95,7 @@ public class DistancesTest {
 		PhyloTree t1_zero = new PhyloTree("((C:1,(A:1,B:1):1):0,((D:1,E:0.5):3,F:1):1);", true);  // rooted; split ABC in common with t3
 		assertEquals("Test 6 (binary trees, rooted, common edge in first trees is 0) failed;", 7, Distances.rf(t1_zero,t3));
 
-
+		
 	}
 	
 	@Test

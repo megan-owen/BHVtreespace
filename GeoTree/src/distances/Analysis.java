@@ -890,7 +890,9 @@ public class Analysis {
 	}
 
 	
-	/** Prints nicely to a file info about which splits in the trees in otherTree in are incompatible
+	/** TODO:  This is hard coded to root on "Opposum"
+	 * 
+	 * Prints nicely to a file info about which splits in the trees in otherTree in are incompatible
 	 *  with the trees in goodTrees (considered individually).
 	 * If goodTrees contains only one tree (i.e. an original tree), then this prints 
 	 * information about which splits in the trees in otherTrees are incompatible with it.
