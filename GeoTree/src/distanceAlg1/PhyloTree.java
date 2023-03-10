@@ -193,8 +193,8 @@ try{  // for stringIndexOutOfBoundsException
 		}	// while
 			
 	} 	//try
-	catch(StringIndexOutOfBoundsException e) {
-		System.err.println("Error reading in tree:  invalid Newick string: (" + t + ");");
+	catch(Exception e) {
+		System.err.println("Error reading in tree:  invalid Newick string after removing first and last parentheses: " + t );
 		System.exit(1);
 	}
 	
