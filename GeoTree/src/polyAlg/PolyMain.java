@@ -766,7 +766,7 @@ public static void displayHelp() {
 	System.out.println("\t -i \t compute the geodesic distances based only on the interior edges, ignoring the leaf edges");
 	System.out.println("\t -n \t normalize (vector of the lengths of all edges has length 1)");
 	System.out.println("\t -o <outfile> \t store the output in the file <outfile>");
-	System.out.println("\t -t <newickTree> \t compute the geodesic distance between newickTree (a tree in Newick format) and a second tree in Newick format specificed instead of treefile");
+	System.out.println("\t -t <newickTree> \t compute the geodesic distance between newickTree (a tree in Newick format) and a second tree in Newick format specificed instead of treefile.  Only prints to outfile if -o option used.");
 	System.out.println("\t -u \t unrooted trees (default is rooted trees)");
 	System.out.println("\t -v || --verbose \t verbose output");
 }
@@ -787,6 +787,7 @@ public static void main(String[] args) {
 	boolean largeFile = true;		// don't store geodesic objects for each distance
 	boolean interiorEdgesOnly = false;   // only use interior edges to compute geodesic
 	boolean treesAsNewick = false;		// when true, the trees are given as part of the arguments, instead of in files
+	boolean oFlag = false;			// true if the -o flag is used
 	
 	if (args.length < 1) {
 		displayHelp();
@@ -811,6 +812,7 @@ public static void main(String[] args) {
 
 		// output file
 		else if (args[i].equals("-o")) {
+			oFlag = true;
 			if (i < args.length -2) {
 				outFile = args[i+1];
 				i++;
@@ -899,7 +901,13 @@ public static void main(String[] args) {
 	}  // end for i (looping through arguments)
 	
 	if (treesAsNewick) {
-		System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), outFile).getDist());
+		// only write to an output file if the -o option was used (to save time)
+		if (oFlag) {
+			System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), outFile).getDist());
+		}
+		else {
+			System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), null).getDist());
+		}
 		System.exit(0);
 	}
 	
