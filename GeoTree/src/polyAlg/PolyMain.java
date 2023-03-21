@@ -676,10 +676,12 @@ public static void computeAllInterTreeGeodesicsFromFile(String inFileName, Strin
 	
 
 /** Open file fileName, reads in the trees, and outputs the distances computed by the polynomial distance algorithm.
+ * 
+ *  If interiorEdgesOnly flag is true, only computes the geodesic distance using the interior edges (ignores leaf lengths).
  *
  */
-public static void computeGeodesicsLargeFile(String inFileName, String outFileName, boolean rooted){
-
+public static void computeGeodesicsLargeFile(String inFileName, String outFileName, boolean rooted, boolean interiorEdgesOnly){
+	double geoDist = -1;	// initialize
     
     PhyloTree[] trees = readInTreesFromFile(inFileName,rooted);
     int numTrees = trees.length;
@@ -697,7 +699,12 @@ public static void computeGeodesicsLargeFile(String inFileName, String outFileNa
  
     	for (int i = 0; i < numTrees -1 ; i++) {
     		for (int j = i + 1; j< numTrees; j++) {
-    			double geoDist = calcGeoDist(trees[i],trees[j]);
+    			if (interiorEdgesOnly) {
+    				geoDist = getGeodesic(trees[i],trees[j],null).getInteriorEdgesOnlyDist();
+    			}
+    			else {
+    				geoDist = calcGeoDist(trees[i],trees[j]);
+    			}
 				outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geoDist, 6));
 			}
 			outputStream.println();
@@ -714,33 +721,52 @@ public static void computeGeodesicsLargeFile(String inFileName, String outFileNa
     }
 }
 
-/** Open file fileName, reads in the trees, and outputs the distances computed by the polynomial distance algorithm, 
- *  ignoring the leaf edges.
- *
+/**  Computes geodesics between the two lists.
+ *   Prints the results to file.
+ * 
+ * @param treeFile 				file name of the first list of trees
+ * @param otherTreeFile			file name of the second list of trees
+ * @param outFileName			file name for the outfile
+ * @param rooted 				true if the trees are rooted
+ * @param interiorEdgesOnly     true if BHV distance should be calculated using only the interior edges (not using leaf edges)
+ * @param paired				true if only compute BHV distances between the i-th trees of each file
  */
-public static void computeGeodesicsInteriorEdgesOnly(String inFileName, String outFileName, boolean rooted){
+public static void computeGeodesicsBtwLists(String treeFile,String otherTreeFile,String outFileName, Boolean rooted, Boolean interiorEdgesOnly, Boolean paired) {
 
-    
-    PhyloTree[] trees = readInTreesFromFile(inFileName,rooted);
-    int numTrees = trees.length;
+	// read in both tree files
+	PhyloTree[] trees = readInTreesFromFile(treeFile,rooted);
     if (verbose >= 1 ) {
-    	System.out.println("" + numTrees + " trees read in from " + inFileName);
+    	System.out.println("" + trees.length + " trees read in from " + treeFile);
     }
     
-    // print distances to file
+	PhyloTree[] otherTrees = readInTreesFromFile(otherTreeFile, rooted);
+    if (verbose >= 1 ) {
+    	System.out.println("" + otherTrees.length + " trees read in from " + otherTreeFile);
+    }
+	
+    // initialize PrintWriter for writing to file
     PrintWriter outputStream = null;
   
     // Outputs the distances in a column, with the first two columns being the trees numbers and the third
     // number the geodesic distance between those trees
     try {
-        outputStream = new PrintWriter(new FileWriter(outFileName));
- 
-    	for (int i = 0; i < numTrees -1 ; i++) {
-    		for (int j = i + 1; j< numTrees; j++) {
-    			double geoDist = getGeodesic(trees[i],trees[j],null).getInteriorEdgesOnlyDist();
-				outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(geoDist, 6));
+       	outputStream = new PrintWriter(new FileWriter(outFileName));
+       	
+    	for (int i = 0; i < trees.length ; i++) {
+    	 	int startIndex = 0;
+    	 	int endIndex = otherTrees.length;
+    	 	
+    	 	// If we only want to compute the BHV distance between the i-th tree in each file
+    		if (paired) {
+    			startIndex = i;
+    			endIndex = i + 1;
+    		}
+
+    		for (int j = startIndex; j< endIndex; j++) {
+    			Geodesic geo = PolyMain.getGeodesic(trees[i], otherTrees[j], "geo_" + i + "_" + j);
+    			double dist = interiorEdgesOnly ? geo.getInteriorEdgesOnlyDist() : geo.getDist();
+    			outputStream.println(i + "\t" + j + "\t" + Tools.roundSigDigits(dist, 6));
 			}
-			outputStream.println();
 		}
 		if (outputStream != null) {
             outputStream.close();
@@ -753,6 +779,7 @@ public static void computeGeodesicsInteriorEdgesOnly(String inFileName, String o
     	System.exit(1);
     }
 }
+
 
 /** Help message (ie. which arguments can be used, etc.)
  * 
@@ -762,11 +789,13 @@ public static void displayHelp() {
 	System.out.println("gtp [options] treefile");
 	System.out.println("Optional arguments:");	
 	System.out.println("\t -d \t double check results, by computing each distance with the target tree as the starting tree and vice versa; default is false");
+	System.out.println("\t -f <otherTreefile> reads in a second tree file and computes distances between all trees in treeFile and all trees in otherTreeFile unless -p flag used");
 	System.out.println("\t -h || --help \t displays this message");
 	System.out.println("\t -i \t compute the geodesic distances based only on the interior edges, ignoring the leaf edges");
 	System.out.println("\t -n \t normalize (vector of the lengths of all edges has length 1)");
 	System.out.println("\t -o <outfile> \t store the output in the file <outfile>");
-	System.out.println("\t -t <newickTree> \t compute the geodesic distance between newickTree (a tree in Newick format) and a second tree in Newick format specificed instead of treefile.  Only prints to outfile if -o option used.");
+	System.out.println("\t -p \t used with -f flag to compute only the geodesic distances trees on the same line in treeFile and otherTreeFile (ie. between the i-th tree in treeFile and the i-th tree in otherTreeFile)");
+	System.out.println("\t -t <newickTree> \t compute the geodesic distance between newickTree (a tree in Newick format) and a second tree in Newick format specificed instead of treefile.");
 	System.out.println("\t -u \t unrooted trees (default is rooted trees)");
 	System.out.println("\t -v || --verbose \t verbose output");
 }
@@ -777,17 +806,19 @@ public static void displayHelp() {
  */
 public static void main(String[] args) {
 	String treeFile = "";
+	String otherTreeFile = "";
 	String outFile = "output.txt"; // default
 	String newick1 = "";	// to store input trees if given as Newick strings
 	String newick2 = "";		
 	
 	boolean doubleCheck = false;
-	boolean minLabelling = false;   // used for relabelling one tree to minimize the geodesic distance
-	boolean rooted = true;
-	boolean largeFile = true;		// don't store geodesic objects for each distance
 	boolean interiorEdgesOnly = false;   // only use interior edges to compute geodesic
+	boolean largeFile = true;		// don't store geodesic objects for each distance
+	boolean minLabelling = false;   // used for relabelling one tree to minimize the geodesic distance
+	boolean paired = false;			// set to true to only compute BHV distance between trees on the same line when using two files
+	boolean rooted = true;
 	boolean treesAsNewick = false;		// when true, the trees are given as part of the arguments, instead of in files
-	boolean oFlag = false;			// true if the -o flag is used
+	boolean twoFiles = false;		// true if there are two tree files
 	
 	if (args.length < 1) {
 		displayHelp();
@@ -809,30 +840,23 @@ public static void main(String[] args) {
 			displayHelp();
 			System.exit(0);
 		}
+		
+		// other tree file
+		else if (args[i].equals("-f")) {
+			if (i < args.length -2) {  otherTreeFile = args[i+1];  i++; twoFiles = true;}
+			else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(0); }
+		}
 
 		// output file
 		else if (args[i].equals("-o")) {
-			oFlag = true;
-			if (i < args.length -2) {
-				outFile = args[i+1];
-				i++;
-			}
-			else {
-				displayHelp();
-				System.exit(0);
-			}
+			if (i < args.length -2) {  outFile = args[i+1]; i++; }
+			else { System.err.println("Error: output file not specified"); displayHelp(); System.exit(0); }
 		}
 		
 		// trees input as Newick strings in arguments
 		else if (args[i].equals("-t")) {
-			if (i < args.length -2) {
-				newick1 = args[i+1];
-				newick2 = treeFile;
-				i++;
-			}
-			else {
-				displayHelp();
-				System.exit(0);
+			if (i < args.length -2) { newick1 = args[i+1]; newick2 = treeFile; i++; }
+			else { System.err.println("Error: Newick tree not specified"); displayHelp(); System.exit(0);
 			}
 			treesAsNewick = true;
 		}
@@ -844,70 +868,44 @@ public static void main(String[] args) {
 				
 				switch(args[i].charAt(j)) {						
 				// doublecheck distances
-				case 'd':
-					doubleCheck = true;
-					break;
+				case 'd': doubleCheck = true; break;
 					
 				// display help
-				case 'h':
-					displayHelp();
-					System.exit(0);
-					break;
+				case 'h': displayHelp(); System.exit(0); break;
 					
 				// use interior edges only in computing the distance
 				// need to also make large files false
-				case 'i':
-					interiorEdgesOnly = true;
-					break;
+				case 'i': interiorEdgesOnly = true; break;
 					
 				// default is large files.  Choose l flag to compute and store geodesics and get timing info.
-				case 'l':
-					largeFile = false;
-					break;
+				case 'l': largeFile = false; break;
 					
 				// relabel one tree to minimize the geodesic distance
-				case 'm':
-					minLabelling = true;
-					break;			
+				case 'm': minLabelling = true; break;			
 					
 				// normalize trees?
-				case 'n':
-					normalize = true;
-					break;
+				case 'n': normalize = true; break;
 					
-					// unrooted trees?
-				case 'u':
-					rooted = false;
-					break;
+				// for two files, only compute geodesics between trees on the same line
+				case 'p': paired = true; break;
+				
+				// unrooted trees?
+				case 'u': rooted = false; break;
 					
 				// verbose output
-				case 'v':
-					verbose = 1;
-					break;
+				case 'v': verbose = 1; break;
 				
 				// output the geodesic information using Newick trees and giving the boundary trees
-				case 'w':
-					verbose =2;
-					break;
+				case 'w': verbose =2; break;
 						
-				default:
-					System.out.println("Illegal command line option.\n");
-					displayHelp();
-					System.exit(0);
-					break;
+				default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(0); break;
 				} // end switch
 			} // end for j
 		} // end parsing an individual argument
 	}  // end for i (looping through arguments)
 	
 	if (treesAsNewick) {
-		// only write to an output file if the -o option was used (to save time)
-		if (oFlag) {
-			System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), outFile).getDist());
-		}
-		else {
-			System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), null).getDist());
-		}
+		System.out.println(getGeodesic(new PhyloTree(newick1,rooted), new PhyloTree(newick2, rooted), outFile).getDist());
 		System.exit(0);
 	}
 	
@@ -917,17 +915,18 @@ public static void main(String[] args) {
 		System.exit(0);
 	}
 	
-	if (interiorEdgesOnly) {
-		computeGeodesicsInteriorEdgesOnly(treeFile,outFile,rooted);
+	if (twoFiles) {
+		computeGeodesicsBtwLists(treeFile, otherTreeFile, outFile, rooted, interiorEdgesOnly, paired);
 		System.exit(0);
 	}
 	
 	// default is largeFile = true
 	if (largeFile) {
-		computeGeodesicsLargeFile(treeFile, outFile, rooted);
+		computeGeodesicsLargeFile(treeFile, outFile, rooted, interiorEdgesOnly);
 		System.exit(0);
 	}
 	
+	// if largeFile set to false (saves more information about the geodesics)
 	computeAllInterTreeGeodesicsFromFile(treeFile, outFile, doubleCheck, rooted);
 	System.exit(0);
 
