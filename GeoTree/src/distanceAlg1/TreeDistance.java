@@ -1342,7 +1342,7 @@ public class TreeDistance {
 //					 this distance is better than the best distance to this node
 					// and the best distance overall,
 					// so replace value in hashtable and keep going
-					nodeHashtable.put(newM.toString(), new Double(pruneDist));
+					nodeHashtable.put(newM.toString(), Double.valueOf(pruneDist));
 					if (pruneDist < minTreeDist) {
 //					 this distance is better than the best distance overall, so keep going
 						if (pathToSearch ==1) {
@@ -1363,7 +1363,7 @@ public class TreeDistance {
 				numNodes++;
 				// no entry for this node in the hash table yet, 
 				// so make one and continue
-				nodeHashtable.put(newM.toString(), new Double(pruneDist));
+				nodeHashtable.put(newM.toString(), Double.valueOf(pruneDist));
 				getPruned2MaxPathSpacesAsRatioSeqs(newM,ratioSeq, eEdges, fEdges);
 			}
 			ratioSeq.remove(ratio);
