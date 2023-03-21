@@ -356,7 +356,7 @@ public class PhyloTreeTest {
 		// Test 1:  rooted, 3 leaves
 		PhyloTree t_l3 = new PhyloTree("(A:1,(B:1,C:2):1);", true); 	// rooted
 		// swap leaves A and B
-		Integer[] permutation = new Integer[] {new Integer(1), new Integer(0), new Integer(2)};
+		Integer[] permutation = new Integer[] {Integer.valueOf(1), Integer.valueOf(0), Integer.valueOf(2)};
 		PhyloTree t_l3_permuted = new PhyloTree("(B:1,(A:1,C:2):1);", true); 	// rooted
 		
 		t_l3.permuteLeaves(permutation);
@@ -365,7 +365,7 @@ public class PhyloTreeTest {
 		// Test 2:  unrooted, 4 leaves
 		PhyloTree t_l4_unrooted = new PhyloTree("(A:1,B:3,(C:1,D:4):2);", false);		// unrooted
 		// swap: A -> C, C -> D, D -> A  (leaf i goes to permutation(i))
-		permutation = new Integer[] {new Integer(2), new Integer(1), new Integer(3), new Integer(0)};
+		permutation = new Integer[] {Integer.valueOf(2), Integer.valueOf(1), Integer.valueOf(3), Integer.valueOf(0)};
 		PhyloTree t_l4_unrooted_permuted = new PhyloTree("(D:1,B:3,(A:1,C:4):2);", false);		// unrooted
 		
 		t_l4_unrooted.permuteLeaves(permutation);
