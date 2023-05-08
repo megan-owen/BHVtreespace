@@ -182,36 +182,25 @@ public class EdgeAttribute {
 		return diff;
 	}
 	
-	/** Adds the two attributes.
+	/** Adds the attribute a to this attribute.
 	 * 
 	 * @param a1
-	 * @param a2
+	 * @param a
 	 */
-	public static EdgeAttribute add(EdgeAttribute a1, EdgeAttribute a2) {
-		if (a1.vect == null) {
-			return a2;
-		}
-		if (a2.vect == null) {
-			return a1;
+	public void add(EdgeAttribute a) {
+
+		if (a.vect == null) {
+			return;
 		}
 		
-		if (a1.vect.length != a2.vect.length) {
-			System.err.println("Error:  vectors different lengths when adding EdgeAttributes " + a1 + " and " + a2);
+		if (this.vect.length != a.vect.length) {
+			System.err.println("Error:  vectors different lengths when adding EdgeAttributes " + this + " and " + a);
 			System.exit(1);
 		}
 		
-		
-		int vectLength = a1.vect.length;
-		
-		EdgeAttribute sum = new EdgeAttribute();
-		sum.vect = new double[vectLength];
-		
-		for(int i = 0; i < vectLength; i++) {
-			sum.vect[i] = a1.vect[i] + a2.vect[i];
-		}
-		
-		return sum;
-			
+		for(int i = 0; i < this.vect.length; i++) {
+			this.vect[i] = this.vect[i] + a.vect[i];
+		}	
 	}
 	
 	/** Multiplies the two attributes.

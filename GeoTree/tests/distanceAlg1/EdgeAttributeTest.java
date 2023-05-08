@@ -109,13 +109,27 @@ public class EdgeAttributeTest {
 	}
 	
 	@Test
-	public void testSum() {	
-		
-		assertEquals("Test 1 (same attribute - double array, length 1) failed",new EdgeAttribute(new double[] {2.0}) ,EdgeAttribute.add(a1, a1) );
-		assertEquals("Test 2 (unequal attributes - double array, length 1) failed", new EdgeAttribute(new double[] {5.0}), EdgeAttribute.add(a1, a2));
-		
-		assertEquals("Test 3 (double array, length >1) failed", new EdgeAttribute(new double[] {2.0,4.0,6.0}), EdgeAttribute.add(b1,b1_same));
-		assertEquals("Test 3b (different double array, length >1) failed", (new EdgeAttribute(new double[] {2.945,2.0,-5.129463692})), EdgeAttribute.add(b2, c1));
+	public void testAdd1() {	
+		a1.add(a1);
+		assertEquals("Test 1 (same attribute - double array, length 1) failed",new EdgeAttribute(new double[] {2.0}) ,a1);
+	}
+	
+	@Test
+	public void testAdd2() {
+		a1.add(a2);
+		assertEquals("Test 2 (unequal attributes - double array, length 1) failed", new EdgeAttribute(new double[] {5.0}), a1);
+	}
+	
+	@Test
+	public void testAdd3() {
+		b1.add(b1_same);
+		assertEquals("Test 3 (double array, length >1) failed", new EdgeAttribute(new double[] {2.0,4.0,6.0}), b1);
+	}
+	
+	@Test
+	public void testAdd3b() {
+		b2.add(c1);
+		assertEquals("Test 3b (different double array, length >1) failed", (new EdgeAttribute(new double[] {2.945,2.0,-5.129463692})), b2);
 	}
 	
 	@Test
