@@ -1228,8 +1228,8 @@ try{  // for stringIndexOutOfBoundsException
 		return coordSplits;
 	}
 	
-	/**  Updates this tree by adding the edge lengths/attributes by the given coordindates (or their negation).
-	 *   By negatation, we mean negative coordinates become positive, and vice versa.
+	/**  Updates this tree by adding the edge lengths/attributes by the given coordinates (or their negation).
+	 *   By negation, we mean negative coordinates become positive, and vice versa.
 	 *    
 	 *   This method does not test if this would result in any negative edge lengths.
 	 *   Assumes the coords are in the order that they would be if
