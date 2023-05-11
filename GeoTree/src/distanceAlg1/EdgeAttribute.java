@@ -60,14 +60,6 @@ public class EdgeAttribute {
 	}
 	}
 	
-	
-	
-/*	public double getAttribute() {
-		if (vect == null) {
-			return 0;
-		}
-		return vect[0];
-	}*/
 
 	public void setEdgeAttribute(EdgeAttribute attrib) {
 		this.vect = attrib.vect;
