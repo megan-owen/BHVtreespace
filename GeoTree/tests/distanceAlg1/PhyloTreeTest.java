@@ -610,4 +610,34 @@ public class PhyloTreeTest {
 		}
 		
 	}
+	
+	@Test
+	public void testAddToEdgeAttributes1() {
+		// rooted, edge attributes of dimension 1
+		// t1: ((C:1,(A:1,B:1):1):2,((D:1,E:0.5):3,F:1):1);
+		double coords[] = {1,1.5,2,3,1,1.5,2,2.5,3,3.5};
+		PhyloTree answer = new PhyloTree("((C:3,(A:2,B:2.5):2):3.5,((D:3.5,E:3.5):5,F:4.5):4);", true);
+		t1.addToEdgeAttributes(coords, false);
+		assertEquals("Test 1 failed; ",answer,t1);
+	}
+	
+	@Test
+	public void testAddToEdgeAttributes2() {
+		// rooted, negation, but no negative edge lengths
+		// t1: ((C:1,(A:1,B:1):1):2,((D:1,E:0.5):3,F:1):1);
+		double coords[] = {0.5,1,2,0.25,0,0,0.5,0.25,0.25,0};
+		PhyloTree answer = new PhyloTree("((C:0.5,(A:1,B:1):0.5):1,((D:0.75,E:0.25):1,F:1):0.75);", true);
+		t1.addToEdgeAttributes(coords, true);
+		assertEquals("Test 2 failed; ",answer,t1);
+	}
+	
+	@Test
+	public void testAddToEdgeAttributes3() {
+		// unrooted, edge attributes of dimension > 1
+		// k1: ((a:[1 1],b:[1 1]):[1 1],(c:[1 1],d:[1 1]):[1 1],e:[1 1]);
+		double coords[] = {1,-0.5, -0.25,2, 1,2, -0.3,0.6, 3,4, 5,6, 7,8};
+		PhyloTree answer = new PhyloTree("((a:[2 3],b:[0.7 1.6]):[2 0.5],(c:[4 5],d:[6 7]):[0.75 3],e:[8 9]);", false);
+		k1.addToEdgeAttributes(coords, false);
+		assertEquals("Test 3 failed; ",answer,k1);
+	}
 }
