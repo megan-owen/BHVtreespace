@@ -262,7 +262,7 @@ public class Analysis {
 			return null;
 		}
 		
-		int numLeaves = trees[0].getLeaf2NumMap().size();
+		int numLeaves = trees[0].numLeaves();
 		int numTrees = trees.length;
 		
 		Vector<PhyloTreeEdge> starEdges = new Vector<PhyloTreeEdge>();
@@ -275,7 +275,7 @@ public class Analysis {
 		for (int leaf= 0; leaf < numLeaves; leaf++) {
 			starLeafAttribs[leaf] = trees[0].getLeafEdgeAttribs()[leaf].clone();
 			for (int tree = 1; tree < numTrees; tree++) {
-				starLeafAttribs[leaf] = EdgeAttribute.add(starLeafAttribs[leaf], trees[tree].getLeafEdgeAttribs()[leaf].clone());
+				starLeafAttribs[leaf].add(trees[tree].getLeafEdgeAttribs()[leaf]);
 			}
 			starLeafAttribs[leaf].scaleBy(1.0/numTrees);
 		}
