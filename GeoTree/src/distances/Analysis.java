@@ -12,6 +12,7 @@ import distanceAlg1.EdgeAttribute;
 import distanceAlg1.Bipartition;
 import distances.Presentation;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -370,8 +371,12 @@ public class Analysis {
 		String outfile = "output.txt";
 		String treeFile = "";
 		String otherTreeFile = null;
+		String nonTreeFile = null;
+		
 		Boolean rooted = true;
 		Boolean interiorEdgesOnly = false;
+		Boolean negate = false;
+		
 		String algorithm = "";
 		PhyloTree[] otherTrees = null;
 		double epsilon = -1;
@@ -401,6 +406,11 @@ public class Analysis {
 				if (i < args.length -2) { otherTreeFile = args[i+1]; i++; }
 				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(1); }
 			}
+			// non-tree input file, if desired
+			else if (args[i].equals("-g")) {
+				if (i < args.length -2) { nonTreeFile = args[i+1]; i++; }
+				else { System.err.println("Error: name of other tree file not specified"); displayHelp(); System.exit(1); }
+			}
 			// output file
 			else if (args[i].equals("-o")) {
 				if (i < args.length -2) { outfile = args[i+1]; i++; }
@@ -417,6 +427,7 @@ public class Analysis {
 					// display help
 					case 'i': interiorEdgesOnly = true; break;
 					case 'h': displayHelp(); System.exit(0); break;
+					case 'n': negate = true; break;
 					case 'u': rooted = false; break;
 					
 					default: System.out.println("Illegal command line option.\n"); displayHelp(); System.exit(1); break;
@@ -579,6 +590,9 @@ public class Analysis {
     			System.exit(0);
     		}
     		
+    		else if (algorithm.equals("adjust_trees")) {
+    			adjustTrees(trees,outfileStream, nonTreeFile, negate);
+    		}
     		
     		else {
     			System.out.println("Error:  no algorithm specified.\n");
@@ -610,7 +624,9 @@ public class Analysis {
 		System.out.println("\t -a <algorithm> \t specifies what to compute");
 		System.out.println("\t -e <epsilon> \t specifies epsilon, if needed.");
 		System.out.println("\t -f <otherTreeFile> \t reads in an additional tree file");
+		System.out.println("\t -g <nonTreeFile> \t reads in an additional file");
 		System.out.println("\t -i \t computes all geodesics using only the interior edges (only implemented for gtp_twofiles and project_distance)");
+		System.out.println("\t -n \t negate the coordinates in adjust_trees algorithm");
 		System.out.println("\t -o <outfile> \t store the output in the file <outfile>.  Default is output.txt");
 		System.out.println("\t -s <sample num> \t a number used for either the sample_point or sample_along_geo algorithms.");
 		System.out.println("\t -u \t trees are unrooted. Default is trees are rooted.");
@@ -631,6 +647,58 @@ public class Analysis {
 		System.out.println("\t endray_angles \t returns a file with four lines corresponding to the angles made by the endrays of the two geodesics given (one in treefile another in otherTreeFile)");
 		System.out.println("\t logmap \t returns a file with the logmap coordinates of the trees in treefile centred at the first tree in otherTreeFile");
 		System.out.println("\t logmap_with_order \t returns a file with the logmap coordinates of the first tree in treefile centered at the first tree in otherTreeFile, with the splits corresponding to the coordinates in order below");
+		System.out.println("\t adjust_trees \t returns a file with the edge lengths/attributes of i-th tree in treefile adjusted by the i-th coordinates in nonTreeFile; any negative lengths (edge attribute dimension 1) are set to 0");
+	}
+	
+	
+	/** Returns a file with the edge lengths/attributes of i-th tree in treefile adjusted by the i-th coordinates
+	 *  in nonTreeFile; any negative lengths (edge attribute dimension 1) are set to 0
+	 * @param trees
+	 * @param outFile
+	 * @param coordFileName
+	 * @param negate
+	 * @throws IOException
+	 */
+	public static void adjustTrees(PhyloTree[] trees, PrintWriter outFile, String coordFileName, Boolean negate) throws IOException {
+		int dimAttribs = trees[0].getDimAttribs();	// dimension of EdgeAttributes
+		double[][] coords = new double[trees.length][(trees[0].numEdges() + trees[0].numLeaves())*dimAttribs];
+	
+		// read in the coordinate file
+		// a lot of error handling is missing
+		Scanner scanner = new Scanner(new File(coordFileName));
+		for (int row=0; row < trees.length; row++) {
+            String[] line = scanner.nextLine().trim().split(" ");
+            for (int col=0; col<line.length; col++) {
+               coords[row][col] = Double.parseDouble(line[col]);
+            }
+		}
+		scanner.close();
+		
+		// for each tree/coord combo, call addToEdgeAttribute
+		for (int i = 0; i < trees.length; i++) {
+			trees[i].addToEdgeAttributes(coords[i], negate);
+			if (trees[i].getDimAttribs() == 1) {
+				// check the interior edges for any now being negative
+				for (PhyloTreeEdge edge: trees[i].getEdges()) {
+					edge.getAttribute().ensureNonNegative();
+				}
+					
+				// check the leaf edges for any now being negative
+				for (EdgeAttribute leafAttrib: trees[i].getLeafEdgeAttribs()) {
+					leafAttrib.ensureNonNegative();
+				}
+			}
+		}
+		
+		// Write all the trees to the outfile
+		for (PhyloTree tree: trees) {
+			if (outFile != null) {
+				outFile.println(tree.getNewick(true));
+			}
+		}
+		
+		if (outFile!=null) outFile.close();
+		
 	}
 	
 	

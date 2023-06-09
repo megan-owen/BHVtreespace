@@ -311,6 +311,16 @@ public class EdgeAttribute {
 		}
 	}
 	
+	/** If vect has length 1, check if it is negative, and if so set to zero.
+	 *  Do nothing if vect has length >1.
+	 * 
+	 */
+	public void ensureNonNegative() {
+		if ((vect.length == 1) && (vect[0] < 0)) {
+			vect[0] = 0;
+		}
+	}
+	
 	/**  Returns the EdgeAttribute with vector length length,
 	 *   with all entries 0.
 	 * @param length

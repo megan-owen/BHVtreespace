@@ -1007,7 +1007,7 @@ try{  // for stringIndexOutOfBoundsException
 		this.newick = newick;
 	}
 	
-	/** Returns number of edges in this tree, including any 0 length ones.
+	/** Returns number of interior edges in this tree, including any 0 length ones.
 	 * 
 	 * @return
 	 */
@@ -1234,6 +1234,8 @@ try{  // for stringIndexOutOfBoundsException
 	 *   This method does not test if this would result in any negative edge lengths.
 	 *   Assumes the coords are in the order that they would be if
 	 *    they were logmap coords with this tree as the base tree.
+	 *    
+	 *    Sets the Newick string to be null, since the branch lengths have been updated.
 	 *
 	 * 
 	 * @param coords  logmap coords
@@ -1276,6 +1278,9 @@ try{  // for stringIndexOutOfBoundsException
 			}
 			leafAttrib.add(new EdgeAttribute(leafCoords));
 		}
+		
+		// set newick string to be null, since there are now new branch lengths
+		newick = null;
 		
 		
 	}

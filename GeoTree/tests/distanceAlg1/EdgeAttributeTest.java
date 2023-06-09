@@ -8,6 +8,7 @@ public class EdgeAttributeTest {
 	private static EdgeAttribute a1;
 	private static EdgeAttribute a1_same;
 	private static EdgeAttribute a2;
+	private static EdgeAttribute a3;
 	
 	private static EdgeAttribute b1;
 	private static EdgeAttribute b1_same;
@@ -23,6 +24,7 @@ public class EdgeAttributeTest {
 		a1 = new EdgeAttribute( new double[] {1.0});
 		a1_same = new EdgeAttribute(new double[] {1.0});
 		a2 = new EdgeAttribute(new double[] {4.0});
+		a3 = new EdgeAttribute(new double[] {-1.2});
 		
 		b1 = new EdgeAttribute(new double[] {1.0, 2.0, 3.0});
 		b1_same = new EdgeAttribute(new double[] {1.0, 2.0, 3.0});
@@ -36,6 +38,7 @@ public class EdgeAttributeTest {
 		a1 = null;
 		a1_same = null;
 		a2 = null;
+		a3 = null;
 		
 		b1 = null;
 		b1_same = null;
@@ -198,5 +201,26 @@ public class EdgeAttributeTest {
 				
 		// Test 4: length >1, last position
 		assertEquals("Test 4 failed; ", -7.129463692, c1.get(2), 0);
+	}
+	
+	@Test
+	public void testEnsureNonNegative_1() {
+		//  vect length >  1
+		b1.ensureNonNegative();
+		assertEquals("Test 1 (attrib dim > 1) failed; ", new EdgeAttribute(new double[] {1.0, 2.0, 3.0}), b1);
+	}
+	
+	@Test
+	public void testEnsureNonNegative_2() {
+		// vect length = 1, positive vect[0]
+		a1.ensureNonNegative();
+		assertEquals("Test 2 (attrib dim = 1, positive coord) failed; ", new EdgeAttribute(new double[] {1.0}), a1);
+	}
+
+	@Test
+	public void testEnsureNonNegative_3() {	
+		//vect length = 1, negative vect[0]
+		a3.ensureNonNegative();
+		assertEquals("Test 3 (attrib dim = 1, negative coord) failed; ", new EdgeAttribute(new double[] {0.0}), a3);
 	}
 }
