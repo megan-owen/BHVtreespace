@@ -139,6 +139,8 @@ public static void splitOnCommonEdge(PhyloTree t1, PhyloTree t2) {
  *  The trees should be one per line, in the Newick format.
  *  There can also be a ";" at the end of each line.
  *  Exits with error message if there is an error in the Newick of any tree.
+ *  Displays a warning if some leaves have different leaf sets, but does not exit.
+ *  TODO:  change warning to throw an exception that will cause code to  exit if leaves must be the same
  * @param inFileName
  * @return
  */
@@ -234,7 +236,6 @@ public static PhyloTree[] readInTreesFromFile (String inFileName, boolean rooted
     			System.out.println("Warning:  tree at line " + (i + 1) + " does not have same leaves as first tree in file");
     			System.out.println("Line 1 tree leaf set: " + leaf2NumMap );
     			System.out.println("Line " + (i+1) + " tree leaf set: " + trees[i].getLeaf2NumMap());
-    			System.exit(1);
     		}
     	}
     }
